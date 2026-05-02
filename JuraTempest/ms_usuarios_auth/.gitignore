@@ -1,0 +1,25 @@
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### VS Code ###
+.vscode/
+
+### IntelliJ IDEA ###
+.idea/
+*.iml
+
+### Logs ###
+*.log
+logs/
+
+### Local configuration files ###
+application-local.properties
+application-dev.properties
+application-test.properties
+
+### OS generated files ###
+.DS_Store
+Thumbs.db

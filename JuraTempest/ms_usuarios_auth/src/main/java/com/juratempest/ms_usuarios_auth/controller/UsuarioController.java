@@ -62,7 +62,7 @@ public class UsuarioController {
 
     @PostMapping
     public ResponseEntity<UsuarioDTO> crear(@Valid @RequestBody RegistroRequestDTO request) {
-        return ResponseEntity.ok(usuarioService.crearDesdeAdmin(request));
+        return ResponseEntity.status(201).body(usuarioService.crearDesdeAdmin(request));
     }
 
     @PutMapping("/{id}")
@@ -71,8 +71,8 @@ public class UsuarioController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+    public ResponseEntity<String> eliminar(@PathVariable Long id) {
         usuarioService.eliminar(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Se ha eliminado correctamente");
     }
 }

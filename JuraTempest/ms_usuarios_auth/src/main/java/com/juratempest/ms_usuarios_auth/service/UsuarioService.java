@@ -42,7 +42,7 @@ public class UsuarioService {
 
     public AuthResponseDTO registrar(RegistroRequestDTO request) {
         if (usuarioRepository.existsByEmail(request.getEmail())) {
-            log.warn("Registro rechazado: email ya existe {}", request.getEmail());
+            log.warn("Email ya existe, intente con otro email {}", request.getEmail());
             throw new BadRequestException("Ya existe un usuario registrado con ese email");
         }
 

@@ -1,6 +1,7 @@
 package com.juratempest.ms_horarios.model;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,23 +25,23 @@ public class BloqueHorario {
     private Long id;
 
     @Column(nullable = false)
-    private LocalDate dia;
+    private LocalDate fecha;
 
     @Column(nullable = false)
-    private LocalDate horaInicio;
+    private LocalTime horaInicio;
 
     @Column(nullable = false)
-    private LocalDate horaFin;
+    private LocalTime horaFin;
 
     @Column(nullable = false)
-    private boolean disponible;
+    private Boolean disponible;
 
     @Column(nullable = false)
     private String estado;
     @Column(nullable = false)
-    private String capacidadMaquina;
+    private Integer capacidadMaquina;
     @Column(nullable = false)
-    private int cuposDisponibles;
+    private Integer cuposDisponibles;
 
 
     

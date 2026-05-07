@@ -25,8 +25,16 @@ public class GlobalExceptionHandler {
             validaciones.put(error.getField(), error.getDefaultMessage())
         );
         Map<String, Object> body= error(HttpStatus.BAD_REQUEST, "DATOS NO VALIDOS");
+        body.put("validaciones", validaciones);
         return ResponseEntity.badRequest().body(body);
     }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<Map<String,Object>> manejarBadRequest(BadRequestException ex) {
+    return ResponseEntity
+        .status(HttpStatus.BAD_REQUEST)
+        .body(error(HttpStatus.BAD_REQUEST, ex.getMessage()));
+}
 
 
     private Map<String,Object> error(HttpStatus status, String mensaje){
@@ -38,7 +46,7 @@ public class GlobalExceptionHandler {
         body.put("status", status.value());
         body.put("code", status.name());
         body.put("success", false);
-        body.put("juratempest", "ms_maquinas");
+        body.put("juratempest", "ms_horarios");
         return body;
         
     }

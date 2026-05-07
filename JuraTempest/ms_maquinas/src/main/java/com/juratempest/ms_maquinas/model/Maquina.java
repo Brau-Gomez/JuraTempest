@@ -41,4 +41,6 @@ public class Maquina {
 
     @Column(nullable = false)
     private LocalDate fechaInstalacion;
+
+    
 }

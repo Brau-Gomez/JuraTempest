@@ -1,5 +1,6 @@
 package com.juratempest.ms_bloques.model;
 
+
 @Data
 @Entity
 @Entity(name = "Bloques")

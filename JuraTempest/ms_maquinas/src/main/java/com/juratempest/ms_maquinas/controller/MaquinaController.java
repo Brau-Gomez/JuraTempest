@@ -9,13 +9,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.juratempest.ms_maquinas.dto.MaquinaDTO;
 import com.juratempest.ms_maquinas.service.MaquinaService;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+
 import jakarta.validation.Valid;
 
 
@@ -37,11 +38,11 @@ public class MaquinaController {
     public ResponseEntity<MaquinaDTO> buscarPorId(@PathVariable Long id){
         return ResponseEntity.ok(maquinaService.buscarPorId(id));
     }
-    @GetMapping("/{id}}/existe")
+    @GetMapping("/{id}/existe")
     public ResponseEntity<Boolean> existePorId(@PathVariable Long id){
         return ResponseEntity.ok(maquinaService.existePorId(id));
     }
-    @GetMapping("{id}/activa")
+    @GetMapping("/{id}/activa")
     public ResponseEntity<Boolean> estaActivo(@PathVariable Long id){
         return ResponseEntity.ok(maquinaService.estaActiva(id));
     }

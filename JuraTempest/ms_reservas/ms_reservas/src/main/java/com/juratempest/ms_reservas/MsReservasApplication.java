@@ -1,13 +1,13 @@
-package com.juratempest.ms_bloques;
+package com.juratempest.ms_reservas;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class MsBloquesApplication {
+public class MsReservasApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(MsBloquesApplication.class, args);
+		SpringApplication.run(MsReservasApplication.class, args);
 	}
 
 }

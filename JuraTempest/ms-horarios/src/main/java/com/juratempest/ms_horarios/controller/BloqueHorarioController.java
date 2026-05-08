@@ -42,7 +42,7 @@ public class BloqueHorarioController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BloquehorarioDTO> buscarPorId(Long id){
+    public ResponseEntity<BloquehorarioDTO> buscarPorId(@PathVariable Long id){
         log.info("GET /horarios/{} - Buscando bloque horario por ID", id);
         log.info("Bloque horario encontrado: {}", bloqueHorarioService.buscarPorId(id));
         return ResponseEntity.ok(bloqueHorarioService.buscarPorId(id));
@@ -87,7 +87,7 @@ public class BloqueHorarioController {
     @PostMapping
     public ResponseEntity<BloquehorarioDTO> crear(@Valid @RequestBody BloquehorarioDTO horario){
         log.info("POST /horarios - Creando nuevo bloque de horario:{}", horario);
-        BloquehorarioDTO creado = bloqueHorarioService.crear(horario);
+        BloquehorarioDTO creado = bloqueHorarioService.crear(horario, null);
         log.info("Bloque horario creado exitosamente: {}", creado);
         return ResponseEntity.ok(creado);
     }

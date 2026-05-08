@@ -49,7 +49,7 @@ public class MaquinaDTO {
         .nombre(m.getNombre())
         .tipo(m.getTipo())
         .ubicacion(m.getUbicacion())
-        .estado(m.getEstado())
+        .estado(m.getEstado().toUpperCase())
         .costoPorBloque(m.getCostoPorBloque())
         .fechaInstalacion(m.getFechaInstalacion())
         .build();

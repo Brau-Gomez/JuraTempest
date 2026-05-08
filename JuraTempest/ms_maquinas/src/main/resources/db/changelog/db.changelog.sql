@@ -2,11 +2,11 @@
 
 --changeset juratempest:maquinas-1
 CREATE TABLE maquina (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     tipo VARCHAR(50) NOT NULL,
     ubicacion VARCHAR(100) NOT NULL,
-    estado VARCHAR(30) NOT NULL,
+    estado VARCHAR(30) NOT NULL CHECK (estado in('ACTIVA', 'MANTENCION', 'INACTIVA')),
     costo_por_bloque INT NOT NULL,
     fecha_instalacion DATE NOT NULL
 );

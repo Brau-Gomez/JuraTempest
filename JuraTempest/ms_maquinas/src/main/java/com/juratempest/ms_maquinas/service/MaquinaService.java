@@ -89,6 +89,6 @@ public class MaquinaService {
 
     private Maquina obtenerMaquina(Long id){
         return maquinaRepository.findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException("Maquina no encontrada con id " + id)); //CAMBIAR CUANDO TERMINE exception
+        .orElseThrow(() -> new ResourceNotFoundException("Maquina no encontrada con id " + id));
     }
 }

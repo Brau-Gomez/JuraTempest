@@ -11,7 +11,6 @@ import com.juratempest.ms_horarios.model.BloqueHorario;
 @Repository
 public interface BloqueHorarioRepository extends JpaRepository<BloqueHorario, Long>{
 
-    List<BloqueHorario> findByDia(LocalDate dia);
 
     List<BloqueHorario> findByFecha(LocalDate fecha);
 
@@ -19,7 +18,7 @@ public interface BloqueHorarioRepository extends JpaRepository<BloqueHorario, Lo
 
     List<BloqueHorario> findByEstado(String estado);
 
-    List<BloqueHorario> findByFechaBetween(LocalDate inicio, LocalDate fin);
+    List<BloqueHorario> findByFechaBetween(LocalDate fechaInicio, LocalDate fechaFin);
 
     List<BloqueHorario> findByFechaAndDisponibleTrue(LocalDate fecha);
 

@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 public class Reserva {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(nullable = false)
     private Long usuarioId;
@@ -29,12 +29,15 @@ public class Reserva {
     private Long maquinaId;
 
     @Column(nullable = false)
-    private Long bloqueId;
+    private Long horarioId;
 
     @Column(nullable = false)
     private LocalDate fechaReserva;
 
     @Column(nullable = false)
     private String estado;
+
+
+
 
 }

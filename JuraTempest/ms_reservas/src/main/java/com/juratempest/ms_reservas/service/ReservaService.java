@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class ReservaService {
+
     private final ReservaRepository reservaRepository;
     private final ReservaClient reservaClient;
 
@@ -27,28 +28,44 @@ public class ReservaService {
         this.reservaClient = reservaClient;
     }
 
+    public List<ReservaDTO> listar(){
+        return reservaRepository.findAll()
+            .stream()
+            .map(ReservaDTO::fromModel)
+            .toList();
+    }
+
     public ReservaDTO crear(ReservaDTO dto){
+
         if(!reservaClient.usuarioExiste(dto.getUsuarioId())){
             throw new ResourceNotFoundException("Usuario no existe");
         }
+
         if(!reservaClient.maquinaActiva(dto.getMaquinaId())){
-            throw new ResourceNotFoundException("Maquina no esta activa");
+            throw new ResourceNotFoundException("Maquina no activa");
         }
+
         if(!reservaClient.bloqueExiste(dto.getHorarioId())){
-            throw new ResourceNotFoundException("Bloque de horario no existe");
+            throw new ResourceNotFoundException("Bloque horario no existe");
         }
-        if(reservaRepository.existsByMaquinaIdAndHorarioId(dto.getMaquinaId(),dto.getHorarioId())){
+
+        if(reservaRepository.existsByMaquinaIdAndHorarioId(
+            dto.getMaquinaId(),
+            dto.getHorarioId()
+        )){
             throw new ResourceNotFoundException("La maquina ya esta reservada");
         }
+
         dto.setFechaReserva(LocalDate.now());
-        dto.setEstado("Activa");
+        dto.setEstado("ACTIVA");
 
         Reserva guardada = reservaRepository.save(dto.toModel());
-        log.info("Reserva creada id={}",guardada.getId());
+
+        log.info("Reserva creada id={}", guardada.getId());
 
         return ReservaDTO.fromModel(guardada);
     }
-    
+
     public List<ReservaDTO> buscarPorUsuario(Long usuarioId){
         return reservaRepository.findByUsuarioId(usuarioId)
             .stream()

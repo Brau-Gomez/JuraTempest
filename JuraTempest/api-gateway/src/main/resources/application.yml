@@ -29,12 +29,12 @@ spring:
               predicates:
                 - Path=/horarios/**
 
-            - id: ms-reservas
+            - id: ms_reservas
               uri: http://localhost:9094
               predicates:
                 - Path=/reservas/**
 
-            - id: ms-fidelizacion
+            - id: ms_fidelizacion
               uri: http://localhost:9095
               predicates:
                 - Path=/fidelizacion/**

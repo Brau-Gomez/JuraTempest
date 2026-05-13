@@ -12,4 +12,6 @@ public interface ReservaRepository extends JpaRepository<Reserva,Long>{
     List<Reserva> findByEstado(String estado);
 
     boolean existsByMaquinaIdAndHorarioIdAndIdNot(Long maquinaId, Long horarioId, Long id);
+
+    boolean existsByMaquinaIdAndHorarioId(Long maquinaId, Long horarioId);
 }

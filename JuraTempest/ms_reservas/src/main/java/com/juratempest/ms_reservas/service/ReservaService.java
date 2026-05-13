@@ -47,7 +47,7 @@ public class ReservaService {
 
         Reserva reserva = obtenerReserva(id);
 
-        reserva.setUsuarioId(dto.getUsuarioID());
+        reserva.setUsuarioId(dto.getUsuarioId());
         reserva.setMaquinaId(dto.getMaquinaId());
         reserva.setHorarioId(dto.getHorarioId());
         reserva.setEstado(dto.getEstado());
@@ -74,7 +74,7 @@ public class ReservaService {
 
     public List<ReservaDTO> buscarPorUsuario(Long usuarioId){
 
-        return reservaRepository.findByusuarioId(usuarioId)
+        return reservaRepository.findByUsuarioId(usuarioId)
             .stream()
             .map(ReservaDTO::fromModel)
             .toList();

@@ -10,31 +10,33 @@ spring:
 
   cloud:
     gateway:
-      routes:
-        - id: ms-usuarios-auth
-          uri: lb://ms-usuarios-auth
-          predicates:
-            - Path=/auth/**,/users/**
+      server:
+        webflux:
+          routes:
+            - id: ms-usuarios-auth
+              uri: http://localhost:9091
+              predicates:
+                - Path=/auth/**,/users/**
 
-        - id: ms-maquinas
-          uri: lb://ms-maquinas
-          predicates:
-            - Path=/maquinas/**
+            - id: ms-maquinas
+              uri: http://localhost:9092
+              predicates:
+                - Path=/maquinas/**
 
-        - id: ms-horarios
-          uri: lb://ms-horarios
-          predicates:
-            - Path=/horarios/**
+            - id: ms-horarios
+              uri: http://localhost:9093
+              predicates:
+                - Path=/horarios/**
 
-        - id: ms-reservas
-          uri: lb://ms-reservas
-          predicates:
-            - Path=/reservas/**
+            - id: ms-reservas
+              uri: http://localhost:9094
+              predicates:
+                - Path=/reservas/**
 
-        - id: ms-fidelizacion
-          uri: lb://ms-fidelizacion
-          predicates:
-            - Path=/fidelizacion/**
+            - id: ms-fidelizacion
+              uri: http://localhost:9095
+              predicates:
+                - Path=/fidelizacion/**
 
 eureka:
   client:

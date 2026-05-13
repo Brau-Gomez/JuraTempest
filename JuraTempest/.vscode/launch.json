@@ -8,6 +8,67 @@
             "mainClass": "com.juratempest.eureka_server.EurekaServerApplication",
             "projectName": "eureka_server",
             "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=46472 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=eureka_server"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-MsUsuariosAuthApplication<ms_usuarios_auth>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.juratempest.ms_usuarios_auth.MsUsuariosAuthApplication",
+            "projectName": "ms_usuarios_auth",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-MsReservasApplication<ms_reservas>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.juratempest.ms_reservas.MsReservasApplication",
+            "projectName": "ms_reservas",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-MsMaquinasApplication<ms_maquinas>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.juratempest.ms_maquinas.MsMaquinasApplication",
+            "projectName": "ms_maquinas",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-MsFidelizacionApplication<ms_fidelizacion>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.juratempest.ms_fidelizacion.MsFidelizacionApplication",
+            "projectName": "ms_fidelizacion",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-MsHorariosApplication<ms-horarios>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.juratempest.ms_horarios.MsHorariosApplication",
+            "projectName": "ms-horarios",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-ApiGatewayApplication<api-gateway>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.juratempest.api_gateway.ApiGatewayApplication",
+            "projectName": "api-gateway",
+            "args": "",
             "envFile": "${workspaceFolder}/.env"
         }
     ]

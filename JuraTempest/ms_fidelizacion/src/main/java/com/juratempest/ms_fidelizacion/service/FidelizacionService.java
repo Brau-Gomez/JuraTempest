@@ -87,7 +87,8 @@ public class FidelizacionService {
                 .mapToLong(Fidelizacion::getPuntos)
                 .sum();
     }
-
+    
+    //ACTUALIZAR
     public FidelizacionDTO actualizar(Long id, FidelizacionDTO dto){
         
         if (!usuarioClient.usuarioExiste(dto.getUsuarioId())){

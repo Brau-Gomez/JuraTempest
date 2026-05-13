@@ -40,6 +40,7 @@ public class ReservaService {
     public ReservaDTO crear(ReservaDTO dto){
         validarDatos(dto);
         if(reservaRepository.existsByMaquinaIdAndHorarioId(dto.getMaquinaId(),dto.getHorarioId())){
+            log.warn("Intento de reserva duplicada maquinaId={} horarioId={}", dto.getMaquinaId(), dto.getHorarioId());
             throw new ResourceNotFoundException("La maquina ya esta reservada en este horario");
         }
         dto.setFechaReserva(LocalDate.now());
@@ -55,6 +56,7 @@ public class ReservaService {
         validarDatos(dto);
 
         if (reservaRepository.existsByMaquinaIdAndHorarioIdAndIdNot(dto.getMaquinaId(), dto.getHorarioId(), id)){
+            log.warn("Intento de reserva duplicada maquinaId={} horarioId={}", dto.getMaquinaId(), dto.getHorarioId());
             throw new BadRequestException("La maquina ya esta reservada en el horario seleccionado"); 
         }
 
@@ -76,6 +78,7 @@ public class ReservaService {
     public void eliminar(Long id){
 
         if(!reservaRepository.existsById(id)){
+            log.warn("Intento de eliminar reserva no existente id={}", id);
             throw new ResourceNotFoundException(
                 "Reserva no encontrada con id " + id
             );
@@ -125,7 +128,7 @@ public class ReservaService {
             throw new ResourceNotFoundException("MAQUINA ESTA BLOQUEADA");
         }
         
-        if (!reservaClient.usuarioExiste(dto.getHorarioId())){
+        if (!reservaClient.bloqueExiste(dto.getHorarioId())){
             throw new ResourceNotFoundException("BLOQUE DE HORARIO NO EXISTE");
         }
     }

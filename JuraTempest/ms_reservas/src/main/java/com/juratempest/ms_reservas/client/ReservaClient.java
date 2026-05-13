@@ -29,7 +29,7 @@ public class ReservaClient {
     public boolean maquinaActiva(Long id){
         return Boolean.TRUE.equals(
             webClient.get()
-            .uri("http://ms-maquinas/maquinas/{id}/activa", id)
+            .uri("http://ms-maquinas/maquinas/{id}/activa", + id)
             .retrieve()
             .bodyToMono(Boolean.class)
             .timeout(Duration.ofSeconds(3))
@@ -41,7 +41,7 @@ public class ReservaClient {
     public boolean bloqueExiste(Long id){
         return Boolean.TRUE.equals(
             webClient.get()
-            .uri("http://ms-horarios/horarios/{id}/existe", id)
+            .uri("http://ms-horarios/horarios/{id}/existe", + id)
             .retrieve()
             .bodyToMono(Boolean.class)
             .timeout(Duration.ofSeconds(3))

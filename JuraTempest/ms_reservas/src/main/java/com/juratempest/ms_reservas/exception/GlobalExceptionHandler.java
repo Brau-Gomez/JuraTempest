@@ -31,6 +31,13 @@ public class GlobalExceptionHandler {
             .body(error(HttpStatus.BAD_REQUEST, "DATOS INVALIDOS"));
     }
 
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<Map<String,Object>> manejarBadRequest(BadRequestException ex){
+
+        return ResponseEntity.badRequest()
+            .body(error(HttpStatus.BAD_REQUEST, ex.getMessage()));
+    }
+
     private Map<String, Object> error(HttpStatus status, String mensaje){
         Map<String,Object> body = new HashMap<>();
         body.put("timestap",LocalDateTime.now());

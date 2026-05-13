@@ -11,7 +11,7 @@ CREATE TABLE reservas (
 );
 
 --changeset juratempest:reservas-2
-INSERT INTO reserva (usuario_id, maquina_id, horario_id, fecha_reserva, estado) VALUES
+INSERT INTO reservas (usuario_id, maquina_id, horario_id, fecha_reserva, estado) VALUES
 (3, 1, 1, '2026-05-07', 'ACTIVA'),
 (4, 2, 2, '2026-05-07', 'ACTIVA'),
 (5, 3, 3, '2026-05-07', 'ACTIVA'),

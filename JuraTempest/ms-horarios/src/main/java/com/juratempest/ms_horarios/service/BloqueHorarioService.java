@@ -37,6 +37,9 @@ public class BloqueHorarioService {
         validarHorario(dto);
         validarCupos(dto);
         validarRangoFechas(dto,id);
+        if (!dto.getHoraFin().isAfter(dto.getHoraInicio())){
+            throw new BadRequestException("La hora de fin no puede ser posterior a la fecha de inicio");
+        }
         BloqueHorario guardado = bloqueHorarioRepository.save(dto.toModel());
         log.info("BloqueHorario creado id={} fecha={} horaInicio={} horaFin={} ",
             guardado.getId(), 

@@ -66,13 +66,13 @@ public class MaquinaController {
     }
 
     //MAPEO PUT
-    @PutMapping("/actualizar/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<MaquinaDTO> actualizar(@PathVariable Long id, @Valid @RequestBody MaquinaDTO dto){
         return ResponseEntity.ok(maquinaService.actualizar(id, dto));
     }
 
     //MAPEO DELETE
-    @DeleteMapping("/eliminar/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> eliminar(@PathVariable Long id){
         maquinaService.eliminar(id);
         return ResponseEntity.ok("Maquina eliminada con exito");

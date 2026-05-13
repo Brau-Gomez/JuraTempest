@@ -3,7 +3,7 @@
 --changeset juratempest:usuarios-1
 CREATE TABLE rol (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(30) NOT NULL UNIQUE
+    nombre VARCHAR(30) NOT NULL UNIQUE check (nombre in('ADMIN', 'OPERADOR', 'CLIENTE'))
 );
 
 --changeset juratempest:usuarios-2

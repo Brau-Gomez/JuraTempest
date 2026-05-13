@@ -1,16 +1,16 @@
 --liquibase formatted sql
 
---changeset juratempest:reserva-1
-CREATE TABLE reserva (
+--changeset juratempest:reservas-1
+CREATE TABLE reservas (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     usuario_id BIGINT NOT NULL,
     maquina_id BIGINT NOT NULL,
     horario_id BIGINT NOT NULL,
     fecha_reserva DATE NOT NULL,
-    estado VARCHAR(30) NOT NULL
+    estado VARCHAR(30) NOT NULL check (estado in('ACTIVA', 'CANCELADA', 'FINALIZADA'))
 );
 
---changeset juratempest:reserva-2
+--changeset juratempest:reservas-2
 INSERT INTO reserva (usuario_id, maquina_id, horario_id, fecha_reserva, estado) VALUES
 (3, 1, 1, '2026-05-07', 'ACTIVA'),
 (4, 2, 2, '2026-05-07', 'ACTIVA'),

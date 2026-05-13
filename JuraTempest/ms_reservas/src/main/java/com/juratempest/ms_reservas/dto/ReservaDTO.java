@@ -2,11 +2,10 @@ package com.juratempest.ms_reservas.dto;
 
 import java.time.LocalDate;
 
-import org.springframework.format.annotation.DateTimeFormat;
-
 import com.juratempest.ms_reservas.model.Reserva;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,33 +15,32 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-
 public class ReservaDTO {
     private Long id;
 
     @NotNull(message = "El id de usuario es obligatorio")
-    private Long usuarioID;
+    private Long usuarioId;
 
     @NotNull(message = "El id de la maquina es obligatorio")
     private Long maquinaId;
 
     @NotNull(message = "El id de horario es obligatorio")
     private Long horarioId;
-    
-    @NotNull
-    private LocalDate fechaReserva;
 
+    private LocalDate fechaReserva;
+    
+    @Pattern(regexp = "ACTIVA|CANCELADA|FINALIZADA", message = "El estado debe ser ACTIVA, CANCELADA o FINALIZADA")
     private String estado;
 
     public Reserva toModel(){
-        return new Reserva(id,usuarioID,maquinaId,horarioId,fechaReserva,estado);
+        return new Reserva(id,usuarioId,maquinaId,horarioId,fechaReserva,estado);
     }
 
     public static ReservaDTO fromModel(Reserva r ){
         if(r==null) return null;
         return ReservaDTO.builder()
         .id(r.getId())
-        .usuarioID(r.getUsuarioId())
+        .usuarioId(r.getUsuarioId())
         .maquinaId(r.getMaquinaId())
         .horarioId(r.getHorarioId())
         .fechaReserva(r.getFechaReserva())

@@ -1,7 +1,6 @@
 package com.juratempest.ms_fidelizacion.dto;
 
-import java.time.LocalDateTime;
-
+import java.time.LocalDate;
 import com.juratempest.ms_fidelizacion.model.Fidelizacion;
 
 import jakarta.validation.constraints.Min;
@@ -29,16 +28,10 @@ public class FidelizacionDTO {
     @Size(max = 200, message = "La descripcion no puede superar los 200 caracteres")
     private String descripcion;
 
-    private LocalDateTime fechaRegistro;
+    private LocalDate fechaRegistro;
 
     public Fidelizacion toModel(){
-        return Fidelizacion.builder()
-        .id(id)
-        .usuarioId(usuarioId)
-        .puntos(puntos)
-        .descripcion(descripcion)
-        .fechaRegistro(fechaRegistro)
-        .build();
+        return new Fidelizacion(id, usuarioId, puntos, descripcion, fechaRegistro);
     }
 
     public static FidelizacionDTO fromModel(Fidelizacion f){

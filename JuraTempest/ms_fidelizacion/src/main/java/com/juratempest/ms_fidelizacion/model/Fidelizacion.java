@@ -1,14 +1,13 @@
 package com.juratempest.ms_fidelizacion.model;
 
-import java.time.LocalDateTime;
-
+import java.time.LocalDate;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -17,14 +16,16 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class Fidelizacion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    @Column(nullable = false)
     private Long usuarioId;
+    @Column(nullable = false)
     private Integer puntos;
+    @Column(nullable = false)
     private String descripcion;
-    private LocalDateTime fechaRegistro;
+    @Column(nullable = false)
+    private LocalDate fechaRegistro;
 }

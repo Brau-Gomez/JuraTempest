@@ -69,4 +69,11 @@ public class FidelizacionController {
 
         return ResponseEntity.ok("Registro eliminado correctamente");
     }
+
+    // PUT
+    @PutMapping("/{id}")
+    public ResponseEntity<FidelizacionDTO> actualizar(@PathVariable Long id, @Valid @RequestBody FidelizacionDTO dto){
+        return ResponseEntity.ok(service.actualizar(id, dto));
+
+    }
 }

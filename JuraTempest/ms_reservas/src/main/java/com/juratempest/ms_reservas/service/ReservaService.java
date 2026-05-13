@@ -43,7 +43,7 @@ public class ReservaService {
             throw new ResourceNotFoundException("La maquina ya esta reservada en este horario");
         }
         dto.setFechaReserva(LocalDate.now());
-        dto.setEstado("Activa");
+        dto.setEstado("ACTIVA");
         Reserva guardada = reservaRepository.save(dto.toModel());
         log.info("Reserva creada id = {}",guardada.getId());
         return ReservaDTO.fromModel(guardada);

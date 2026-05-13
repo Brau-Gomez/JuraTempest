@@ -3,9 +3,12 @@ package com.juratempest.ms_reservas.service;
 import java.time.LocalDate;
 import java.util.List;
 
+
 import org.springframework.stereotype.Service;
 
+import com.juratempest.ms_reservas.client.ReservaClient;
 import com.juratempest.ms_reservas.dto.ReservaDTO;
+import com.juratempest.ms_reservas.exception.BadRequestException;
 import com.juratempest.ms_reservas.exception.ResourceNotFoundException;
 import com.juratempest.ms_reservas.model.Reserva;
 import com.juratempest.ms_reservas.repository.ReservaRepository;
@@ -16,9 +19,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ReservaService {
     private final ReservaRepository reservaRepository;
+    private final ReservaClient reservaClient;
 
-    public ReservaService(ReservaRepository reservaRepository){
+    public ReservaService(ReservaRepository reservaRepository, ReservaClient reservaClient){
         this.reservaRepository = reservaRepository;
+        this.reservaClient = reservaClient;
     }
 
     public List<ReservaDTO> listar(){
@@ -33,6 +38,7 @@ public class ReservaService {
     }
 
     public ReservaDTO crear(ReservaDTO dto){
+        validarDatos(dto);
         if(reservaRepository.existsByMaquinaIdAndHorarioId(dto.getMaquinaId(),dto.getHorarioId())){
             throw new ResourceNotFoundException("La maquina ya esta reservada en este horario");
         }
@@ -46,11 +52,19 @@ public class ReservaService {
     public ReservaDTO actualizar(Long id, ReservaDTO dto){
 
         Reserva reserva = obtenerReserva(id);
+        validarDatos(dto);
+
+        if (reservaRepository.existsByMaquinaIdAndHorarioIdAndIdNot(dto.getMaquinaId(), dto.getHorarioId(), id)){
+            throw new BadRequestException("La maquina ya esta reservada en el horario seleccionado"); 
+        }
 
         reserva.setUsuarioId(dto.getUsuarioId());
         reserva.setMaquinaId(dto.getMaquinaId());
         reserva.setHorarioId(dto.getHorarioId());
-        reserva.setEstado(dto.getEstado());
+        
+        if (dto.getEstado() != null){
+            reserva.setEstado(dto.getEstado().toUpperCase());
+        }
 
         Reserva actualizada = reservaRepository.save(reserva);
 
@@ -99,5 +113,20 @@ public class ReservaService {
                 new ResourceNotFoundException(
                     "Reserva no encontrada con id " + id
                 ));
+    }
+
+    //METODO PRIVADO PARA VALIDAR CONTENIDO DE CONSULTAS
+    private void validarDatos(ReservaDTO dto){
+        if (!reservaClient.usuarioExiste(dto.getUsuarioId())){
+            throw new ResourceNotFoundException("USUARIO NO EXISTE");
+        }
+        
+        if (!reservaClient.maquinaActiva(dto.getMaquinaId())){
+            throw new ResourceNotFoundException("MAQUINA ESTA BLOQUEADA");
+        }
+        
+        if (!reservaClient.usuarioExiste(dto.getHorarioId())){
+            throw new ResourceNotFoundException("BLOQUE DE HORARIO NO EXISTE");
+        }
     }
 }

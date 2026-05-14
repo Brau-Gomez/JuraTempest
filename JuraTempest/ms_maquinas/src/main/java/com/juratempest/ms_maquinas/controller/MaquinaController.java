@@ -42,7 +42,7 @@ public class MaquinaController {
     public ResponseEntity<Boolean> existePorId(@PathVariable Long id){
         return ResponseEntity.ok(maquinaService.existePorId(id));
     }
-    @GetMapping("/{id}/activa")
+    @GetMapping("/activa/{id}")
     public ResponseEntity<Boolean> estaActivo(@PathVariable Long id){
         return ResponseEntity.ok(maquinaService.estaActiva(id));
     }

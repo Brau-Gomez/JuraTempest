@@ -11,7 +11,7 @@ Integrantes
 - Lukas Meza
 
 Docente
-Carlos Alberto Abarzu Castro
+Carlos Alberto Abarzua Castro
 
 Asignatura & Seccion
 Desarrollo FullStack 1 DSY1103 - 010D

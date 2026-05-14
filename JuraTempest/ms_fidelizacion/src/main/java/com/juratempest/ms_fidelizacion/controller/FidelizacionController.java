@@ -44,12 +44,12 @@ public class FidelizacionController {
     }
 
     // GET TOTAL PUNTOS
-    @GetMapping("/total-puntos/{usuarioId}")
+    @GetMapping("/total/{usuarioId}")
     public ResponseEntity<Map<String, Long>> totalPuntos(
             @PathVariable Long usuarioId) {
 
         return ResponseEntity.ok(
-                Map.of("totalPuntos", service.totalPuntos(usuarioId))
+                Map.of("total de puntos acumulados", service.totalPuntos(usuarioId))
         );
     }
 

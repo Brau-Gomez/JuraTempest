@@ -90,11 +90,12 @@ public class FidelizacionService {
     
     //ACTUALIZAR
     public FidelizacionDTO actualizar(Long id, FidelizacionDTO dto){
-        
+
         if (!usuarioClient.usuarioExiste(dto.getUsuarioId())){
             throw new ResourceNotFoundException("Usuario no existe en la base de datos");
         }
-        Fidelizacion fidelizacion = repository.findById(id).get();
+        Fidelizacion fidelizacion = repository.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("Registro no encontrado"));
         
         fidelizacion.setUsuarioId(dto.getUsuarioId());
         fidelizacion.setPuntos(dto.getPuntos());

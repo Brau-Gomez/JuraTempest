@@ -316,7 +316,7 @@ Endpoints principales:
 | GET | `/fidelizacion` | Listar registros |
 | GET | `/fidelizacion/{id}` | Buscar registro por id |
 | GET | `/fidelizacion/usuario/{usuarioId}` | Buscar registros por usuario |
-| GET | `/fidelizacion/total-puntos/{usuarioId}` | Calcular puntos acumulados |
+| GET | `/fidelizacion/total/{usuarioId}` | Calcular puntos acumulados |
 | POST | `/fidelizacion` | Crear registro de puntos |
 | PUT | `/fidelizacion/{id}` | Actualizar registro |
 | DELETE | `/fidelizacion/{id}` | Eliminar registro |

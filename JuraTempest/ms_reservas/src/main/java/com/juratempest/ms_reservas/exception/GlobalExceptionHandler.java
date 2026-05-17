@@ -9,44 +9,70 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import com.juratempest.ms_reservas.dto.ApiErrorDTO;
+import jakarta.servlet.http.HttpServletRequest;
+
 @ControllerAdvice
 public class GlobalExceptionHandler {
+    // Captura recursos inexistentes, como una reserva que no se encontro.
+    // Responde 404 para indicar que el recurso solicitado no existe.
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Map<String,Object>> manejarNotFound(ResourceNotFoundException ex){
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body(error(HttpStatus.NOT_FOUND, ex.getMessage()));
+    public ResponseEntity<ApiErrorDTO> manejarNotFound(ResourceNotFoundException ex){
+        return error(HttpStatus.NOT_FOUND,
+            ex.getMessage(),
+            null,
+            null);
     }
 
+    // Captura errores de validacion producidos por @Valid.
+    // Recorre los errores de campo para poder entregar una respuesta de validacion uniforme.
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String,Object>> manejarValidacion(MethodArgumentNotValidException ex){
+    public ResponseEntity<ApiErrorDTO> manejarValidacion(MethodArgumentNotValidException ex, HttpServletRequest request){
 
         Map<String,String> validaciones = new HashMap<>();
 
         ex.getBindingResult().getFieldErrors()
             .forEach(error ->
                 validaciones.put(error.getField(), error.getDefaultMessage()));
-
-        return ResponseEntity.badRequest()
-            .body(error(HttpStatus.BAD_REQUEST, "DATOS INVALIDOS"));
+            
+        return error(HttpStatus.BAD_REQUEST,
+            "Datos de entrada no validos",
+            request.getRequestURI(),
+            validaciones);
     }
 
+    // Captura errores de solicitud incorrecta definidos por reglas de negocio.
+    // Se usa para conflictos como intentar reservar una maquina en un horario ocupado.
     @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<Map<String,Object>> manejarBadRequest(BadRequestException ex){
-
-        return ResponseEntity.badRequest()
-            .body(error(HttpStatus.BAD_REQUEST, ex.getMessage()));
+    public ResponseEntity<ApiErrorDTO> manejarBadRequest(BadRequestException ex, HttpServletRequest request){
+        return error(HttpStatus.BAD_REQUEST,
+             ex.getMessage(),
+             request.getRequestURI(),
+             null 
+            );
+        }
+    //Maneja los errores no previstos.
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiErrorDTO> manejarGeneric(Exception ex, HttpServletRequest request){
+        return error(HttpStatus.INTERNAL_SERVER_ERROR,
+             "Error interno del servicio",
+             request.getRequestURI(),
+             null 
+            );
     }
 
-    private Map<String, Object> error(HttpStatus status, String mensaje){
-        Map<String,Object> body = new HashMap<>();
-        body.put("timestap",LocalDateTime.now());
-        body.put("status",status.value());
-        body.put("error",status.getReasonPhrase());
-        body.put("mensaje",mensaje);
-        body.put("succes",false);
-        return body;
-
+    // Construye el cuerpo comun de error para este microservicio.
+    // Centralizarlo evita duplicacion y mantiene respuestas de error con el mismo formato.
+    private ResponseEntity<ApiErrorDTO> error(HttpStatus status, String mensaje, String path, Map<String, String> validaciones){
+        ApiErrorDTO body = ApiErrorDTO.builder()
+        .timestamp(LocalDateTime.now())
+        .status(status.value())
+        .error(status.getReasonPhrase())
+        .mensaje(mensaje)
+        .path(path)
+        .validaciones(validaciones)
+        .build();
+        return ResponseEntity.status(status).body(body);
     }
 
 }

@@ -32,10 +32,14 @@ public class ReservaDTO {
     @Pattern(regexp = "ACTIVA|CANCELADA|FINALIZADA", message = "El estado debe ser ACTIVA, CANCELADA o FINALIZADA")
     private String estado;
 
+    // Convierte el DTO a entidad Reserva para persistirla con JPA.
+    // Usamos DTO para validar y transportar datos sin exponer directamente el modelo de base de datos.
     public Reserva toModel(){
         return new Reserva(id,usuarioId,maquinaId,horarioId,fechaReserva,estado);
     }
 
+    // Convierte una entidad Reserva a DTO para responder al cliente.
+    // Este metodo centraliza el mapeo y evita repetir armado de respuestas en controllers o services.
     public static ReservaDTO fromModel(Reserva r ){
         if(r==null) return null;
         return ReservaDTO.builder()

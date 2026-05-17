@@ -21,11 +21,15 @@ public class ReservaService {
     private final ReservaRepository reservaRepository;
     private final ReservaClient reservaClient;
 
+    // Constructor usado por Spring para inyectar repositorio y cliente de validacion externa.
+    // ReservaService coordina datos locales con consultas a usuarios, maquinas y horarios.
     public ReservaService(ReservaRepository reservaRepository, ReservaClient reservaClient){
         this.reservaRepository = reservaRepository;
         this.reservaClient = reservaClient;
     }
 
+    // Lista todas las reservas y las convierte a DTO.
+    // Asi la API no expone directamente la entidad JPA.
     public List<ReservaDTO> listar(){
         return reservaRepository.findAll()
             .stream()
@@ -33,10 +37,14 @@ public class ReservaService {
             .toList();
     }
 
+    // Busca una reserva por id.
+    // Reutiliza obtenerReserva para manejar de forma uniforme el caso no encontrado.
     public ReservaDTO buscarPorId(Long id){
         return ReservaDTO.fromModel(obtenerReserva(id));
     }
 
+    // Crea una reserva nueva validando referencias y disponibilidad.
+    // Evita guardar reservas con usuario inexistente, maquina bloqueada, horario inexistente o duplicidad.
     public ReservaDTO crear(ReservaDTO dto){
         validarDatos(dto);
         if(reservaRepository.existsByMaquinaIdAndHorarioId(dto.getMaquinaId(),dto.getHorarioId())){
@@ -50,6 +58,8 @@ public class ReservaService {
         return ReservaDTO.fromModel(guardada);
     }
 
+    // Actualiza una reserva existente y revisa que no choque con otra reserva.
+    // La consulta con IdNot permite ignorar la reserva actual durante la validacion de duplicados.
     public ReservaDTO actualizar(Long id, ReservaDTO dto){
 
         Reserva reserva = obtenerReserva(id);
@@ -75,6 +85,8 @@ public class ReservaService {
         return ReservaDTO.fromModel(actualizada);
     }
 
+    // Elimina una reserva por id.
+    // Confirmar existencia antes de borrar permite responder 404 si el id no pertenece a ninguna reserva.
     public void eliminar(Long id){
 
         if(!reservaRepository.existsById(id)){
@@ -89,6 +101,8 @@ public class ReservaService {
         log.info("Reserva eliminada id={}", id);
     }
 
+    // Busca reservas asociadas a un usuario.
+    // La consulta filtrada reduce trabajo del cliente y entrega directamente el historial necesario.
     public List<ReservaDTO> buscarPorUsuario(Long usuarioId){
 
         return reservaRepository.findByUsuarioId(usuarioId)
@@ -97,6 +111,8 @@ public class ReservaService {
             .toList();
     }
 
+    // Busca reservas por estado normalizando a mayusculas.
+    // Esto mantiene consistencia con los estados controlados del DTO.
     public List<ReservaDTO> buscarPorEstado(String estado){
 
         return reservaRepository.findByEstado(estado.toUpperCase())
@@ -105,10 +121,14 @@ public class ReservaService {
             .toList();
     }
 
+    // Cuenta todas las reservas guardadas.
+    // Delegamos el conteo al repositorio para que la base de datos haga el trabajo.
     public long totalReservas(){
         return reservaRepository.count();
     }
 
+    // Obtiene una reserva o lanza excepcion si no existe.
+    // Centralizar esta busqueda evita repetir findById y mensajes de error.
     private Reserva obtenerReserva(Long id){
 
         return reservaRepository.findById(id)
@@ -118,7 +138,8 @@ public class ReservaService {
                 ));
     }
 
-    //METODO PRIVADO PARA VALIDAR CONTENIDO DE CONSULTAS
+    // Valida las referencias externas necesarias para crear o actualizar una reserva.
+    // Esta regla protege la consistencia entre microservicios antes de guardar datos locales.
     private void validarDatos(ReservaDTO dto){
         if (!reservaClient.usuarioExiste(dto.getUsuarioId())){
             throw new ResourceNotFoundException("USUARIO NO EXISTE");

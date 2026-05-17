@@ -10,10 +10,14 @@ public class ReservaClient {
 
     private final WebClient webClient;
     
+    // Constructor usado por Spring para inyectar el builder de WebClient.
+    // Creamos un cliente reutilizable para consultar otros microservicios antes de guardar reservas.
     public ReservaClient(WebClient.Builder webClient){
         this.webClient = webClient.build();
     }
 
+    // Consulta a ms_usuarios_auth para confirmar que el usuario exista.
+    // Si falla la comunicacion, devolvemos false para evitar crear reservas con datos no validados.
     public boolean usuarioExiste (Long id ){
         return Boolean.TRUE.equals(
             webClient.get()
@@ -26,6 +30,8 @@ public class ReservaClient {
         );
     }
 
+    // Consulta a ms_maquinas para saber si la maquina esta activa.
+    // Esta validacion evita reservar maquinas bloqueadas, inactivas o no disponibles.
     public boolean maquinaActiva(Long id){
         return Boolean.TRUE.equals(
             webClient.get()
@@ -38,6 +44,8 @@ public class ReservaClient {
         );
     }
 
+    // Consulta a ms-horarios para confirmar que el bloque horario exista.
+    // La reserva depende de un bloque valido, por eso se valida antes de persistir.
     public boolean bloqueExiste(Long id){
         return Boolean.TRUE.equals(
             webClient.get()

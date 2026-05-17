@@ -44,10 +44,14 @@ public class BloquehorarioDTO {
     @Min(value = 0, message = "Los cupos disponibles no pueden ser negativos")
     private Integer cuposDisponibles;
 
+    // Convierte el DTO a entidad BloqueHorario para persistirlo con JPA.
+    // Mantener este mapeo en el DTO evita repetir conversiones en el service.
     public BloqueHorario toModel(){
         return new BloqueHorario(id, fecha, horaInicio, horaFin, disponible, estado, capacidadMaquina, cuposDisponibles);
     }
 
+    // Convierte una entidad BloqueHorario a DTO para responder por la API.
+    // Asi el controlador trabaja con una estructura pensada para entrada y salida HTTP.
     public static BloquehorarioDTO fromModel(BloqueHorario bloque){
         if (bloque == null) return null;
         return BloquehorarioDTO.builder()

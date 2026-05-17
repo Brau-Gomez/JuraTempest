@@ -20,12 +20,15 @@ public class FidelizacionService {
     private final FidelizacionRepository repository;
     private final UsuarioClient usuarioClient;
 
+    // Constructor usado por Spring para inyectar repositorio y cliente de usuarios.
+    // El service necesita ambos porque combina persistencia local con validacion en otro microservicio.
     public FidelizacionService(FidelizacionRepository repository, UsuarioClient usuarioClient) {
         this.repository = repository;
         this.usuarioClient = usuarioClient;
     }
 
-    // LISTAR
+    // Lista todos los registros y los transforma a DTO.
+    // No devolvemos entidades directamente para mantener separada la capa de API de la capa JPA.
     public List<FidelizacionDTO> listar() {
 
         return repository.findAll()
@@ -34,7 +37,8 @@ public class FidelizacionService {
                 .toList();
     }
 
-    // BUSCAR POR ID
+    // Busca un registro por id y lanza excepcion si no existe.
+    // Esto mantiene una respuesta 404 clara en vez de devolver null al controlador.
     public FidelizacionDTO buscarPorId(Long id) {
 
         Fidelizacion fidelizacion = repository.findById(id)
@@ -44,7 +48,8 @@ public class FidelizacionService {
         return FidelizacionDTO.fromModel(fidelizacion);
     }
 
-    // BUSCAR POR USUARIO
+    // Obtiene el historial de puntos de un usuario.
+    // La consulta filtrada evita traer todos los registros cuando solo interesa un usuario especifico.
     public List<FidelizacionDTO> buscarPorUsuario(Long usuarioId) {
 
         return repository.findByUsuarioId(usuarioId)
@@ -53,7 +58,8 @@ public class FidelizacionService {
                 .toList();
     }
 
-    // CREAR
+    // Crea un registro de puntos para un usuario existente.
+    // Primero validamos contra ms_usuarios_auth para no guardar puntos asociados a usuarios inexistentes.
     public FidelizacionDTO crear(FidelizacionDTO dto) {
         if (!usuarioClient.usuarioExiste(dto.getUsuarioId())){
             throw new ResourceNotFoundException("Usuario no existe");
@@ -68,7 +74,8 @@ public class FidelizacionService {
         
     }
 
-    // ELIMINAR
+    // Elimina un registro de fidelizacion por id.
+    // Verificar existencia antes de borrar permite entregar un error de negocio comprensible.
     public void eliminar(Long id) {
 
         if (!repository.existsById(id)) {
@@ -79,7 +86,8 @@ public class FidelizacionService {
         log.info("Registro eliminado con exito id={}" , id);
     }
 
-    // TOTAL PUNTOS
+    // Suma todos los puntos acumulados por un usuario.
+    // Usamos stream y mapToLong para transformar cada registro en su puntaje y calcular el total.
     public Long totalPuntos(Long usuarioId) {
         
         return repository.findByUsuarioId(usuarioId)
@@ -88,7 +96,8 @@ public class FidelizacionService {
                 .sum();
     }
     
-    //ACTUALIZAR
+    // Actualiza un registro de puntos ya existente.
+    // Se vuelve a validar el usuario para evitar que la actualizacion apunte a una referencia invalida.
     public FidelizacionDTO actualizar(Long id, FidelizacionDTO dto){
 
         if (!usuarioClient.usuarioExiste(dto.getUsuarioId())){

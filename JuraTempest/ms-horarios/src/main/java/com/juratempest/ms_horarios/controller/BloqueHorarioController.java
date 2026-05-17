@@ -29,11 +29,14 @@ public class BloqueHorarioController {
     private static final Logger log = LoggerFactory.getLogger(BloqueHorarioController.class);
     private final BloqueHorarioService bloqueHorarioService;
 
+    // Constructor usado por Spring para inyectar el servicio de bloques horarios.
+    // El controlador se mantiene enfocado en HTTP y delega validaciones al service.
     public BloqueHorarioController(BloqueHorarioService bloqueHorarioService) {
         this.bloqueHorarioService = bloqueHorarioService;
     }
 
-    //GET
+    // Lista todos los bloques horarios.
+    // Se registra informacion en logs para facilitar seguimiento durante pruebas o ejecucion.
     @GetMapping
     public ResponseEntity<List<BloquehorarioDTO>> listarBloques(){
         log.info("GET /horarios - Listando todos los bloques horarios");
@@ -41,6 +44,8 @@ public class BloqueHorarioController {
         return ResponseEntity.ok(bloqueHorarioService.listar());
     }
 
+    // Busca un bloque horario por id.
+    // El servicio resuelve el caso no encontrado para mantener consistente la respuesta de error.
     @GetMapping("/{id}")
     public ResponseEntity<BloquehorarioDTO> buscarPorId(@PathVariable Long id){
         log.info("GET /horarios/{} - Buscando bloque horario por ID", id);
@@ -49,6 +54,8 @@ public class BloqueHorarioController {
         
     }
 
+    // Verifica si existe un bloque horario por id.
+    // Otros microservicios, como reservas, pueden usarlo para validar referencias antes de guardar.
     @GetMapping("/{id}/existe")
     public ResponseEntity<Boolean> existePorId(@PathVariable Long id){
         log.info("GET /horarios/{}/existe - Verificando existencia de bloque horario", id);
@@ -57,12 +64,16 @@ public class BloqueHorarioController {
         return ResponseEntity.ok(existe);
     }
 
+    // Lista bloques horarios para una fecha especifica.
+    // @DateTimeFormat permite convertir el texto de la URL en LocalDate correctamente.
     @GetMapping("/fecha/{fecha}")
     public ResponseEntity<List<BloquehorarioDTO>> listarPorFecha(@PathVariable @DateTimeFormat (iso = DateTimeFormat.ISO.DATE)LocalDate fecha){
         log.info("GET /horarios/fecha/{} - Listando bloques horarios para la fecha: {}", fecha, fecha);
         return ResponseEntity.ok(bloqueHorarioService.buscarPorFecha(fecha));
     }
 
+    // Lista solo los bloques marcados como disponibles.
+    // Este endpoint evita que el cliente filtre manualmente horarios no reservables.
     @GetMapping("/disponibles")
     public ResponseEntity<List<BloquehorarioDTO>> listarDisponibles(){
         log.info("GET /horarios/disponibles - Listando bloques horarios disponibles");
@@ -70,6 +81,8 @@ public class BloqueHorarioController {
         return ResponseEntity.ok(bloqueHorarioService.buscarDisponibles());
     }
 
+    // Lista bloques dentro de un rango de fechas recibido por query params.
+    // Usamos @RequestParam porque inicio y fin son filtros, no identificadores del recurso.
     @GetMapping("/rango")
     public ResponseEntity<List<BloquehorarioDTO>> listarPorRango(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
                                                                 @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin){
@@ -77,13 +90,16 @@ public class BloqueHorarioController {
         return ResponseEntity.ok(bloqueHorarioService.buscarPorRango(inicio, fin));
     }
 
+    // Devuelve la cantidad total de bloques horarios.
+    // El conteo se delega al servicio y repositorio para que lo haga la base de datos.
     @GetMapping("/total")
     public ResponseEntity<Long> contarBloques(){
         log.info("GET /horarios/total - Contando bloques horarios");
         return ResponseEntity.ok(bloqueHorarioService.totalBloques());
     }
 
-    //POST, PUT, DELETE
+    // Crea un nuevo bloque horario validando el DTO.
+    // El servicio controla reglas como rango de horas, cupos y solapamiento con otros bloques.
     @PostMapping
     public ResponseEntity<BloquehorarioDTO> crear(@Valid @RequestBody BloquehorarioDTO horario){
         log.info("POST /horarios - Creando nuevo bloque de horario:{}", horario);
@@ -92,6 +108,8 @@ public class BloqueHorarioController {
         return ResponseEntity.ok(creado);
     }
 
+    // Actualiza un bloque horario existente.
+    // El id identifica el bloque y el body trae los datos modificados.
     @PutMapping("/{id}")
     public ResponseEntity<BloquehorarioDTO> actualizar(@PathVariable Long id, @Valid @RequestBody BloquehorarioDTO horario){
         log.info("PUT /horarios/{} - Actualizando bloque horario con datos: {}", id, horario);
@@ -100,6 +118,8 @@ public class BloqueHorarioController {
         return ResponseEntity.ok(actualizado);
     }
 
+    // Elimina un bloque horario por id.
+    // La existencia se valida en el servicio para responder 404 si el bloque no existe.
     @DeleteMapping("/{id}")
     public ResponseEntity<String> eliminar(@PathVariable Long id){
         log.info("DELETE /horarios/{} - Eliminando bloque horario", id);

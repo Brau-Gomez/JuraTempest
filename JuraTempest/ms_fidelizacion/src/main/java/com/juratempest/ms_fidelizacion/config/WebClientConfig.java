@@ -8,6 +8,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class WebClientConfig {
 
+    // Expone un WebClient.Builder como bean para inyectarlo en los clientes HTTP del microservicio.
+    // @LoadBalanced permite usar el nombre del servicio registrado en Eureka en vez de una URL fija.
     @Bean
     @LoadBalanced
     public WebClient.Builder webClientBuilder(){

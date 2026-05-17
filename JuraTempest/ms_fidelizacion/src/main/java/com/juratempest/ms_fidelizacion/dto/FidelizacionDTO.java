@@ -30,10 +30,14 @@ public class FidelizacionDTO {
 
     private LocalDate fechaRegistro;
 
+    // Convierte el DTO a entidad para guardar o actualizar datos con JPA.
+    // Esta separacion permite que la API trabaje con DTO sin exponer directamente la entidad.
     public Fidelizacion toModel(){
         return new Fidelizacion(id, usuarioId, puntos, descripcion, fechaRegistro);
     }
 
+    // Convierte una entidad de base de datos a DTO para responder al cliente.
+    // Usamos builder para construir la respuesta de forma legible y controlar que campos salen por la API.
     public static FidelizacionDTO fromModel(Fidelizacion f){
         if (f == null) return null;
 

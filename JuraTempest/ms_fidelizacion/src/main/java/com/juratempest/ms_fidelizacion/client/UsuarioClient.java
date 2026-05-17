@@ -10,10 +10,14 @@ public class UsuarioClient {
 
     private final WebClient webClient;
 
+    // Constructor usado por Spring para inyectar el builder de WebClient.
+    // Construimos el cliente aqui para reutilizarlo al consultar otros microservicios.
     public UsuarioClient(WebClient.Builder builder){
         this.webClient = builder.build();
     }
 
+    // Consulta al microservicio de usuarios para validar que el usuario exista antes de asignarle puntos.
+    // Usamos timeout y onErrorReturn(false) para que una falla externa no bloquee indefinidamente este servicio.
     public boolean usuarioExiste(Long id){
         return Boolean.TRUE.equals(
             webClient.get()

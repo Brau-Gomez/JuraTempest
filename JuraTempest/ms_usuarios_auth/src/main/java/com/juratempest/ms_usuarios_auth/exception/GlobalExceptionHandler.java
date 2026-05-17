@@ -14,16 +14,22 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+    // Captura errores de recursos inexistentes y responde con HTTP 404.
+    // Centralizamos esta respuesta para que todos los controladores mantengan el mismo formato de error.
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiErrorDTO> handleNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
         return buildError(HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI(), null);
     }
 
+    // Captura errores de solicitud invalida y credenciales incorrectas con HTTP 400.
+    // Agrupar estas excepciones evita repetir codigo cuando el problema viene desde la entrada del cliente.
     @ExceptionHandler({BadRequestException.class, BadCredentialsException.class})
     public ResponseEntity<ApiErrorDTO> handleBadRequest(RuntimeException ex, HttpServletRequest request) {
         return buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI(), null);
     }
 
+    // Captura errores generados por validaciones de @Valid en los DTO.
+    // Recorremos los campos invalidos para devolver mensajes especificos que ayudan a corregir el formulario.
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiErrorDTO> handleValidation(MethodArgumentNotValidException ex, HttpServletRequest request) {
         Map<String, String> validations = new HashMap<>();
@@ -33,11 +39,15 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.BAD_REQUEST, "Datos de entrada invalidos", request.getRequestURI(), validations);
     }
 
+    // Captura cualquier excepcion no prevista y responde con HTTP 500.
+    // Esto evita filtrar detalles internos del sistema hacia el cliente.
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorDTO> handleGeneric(Exception ex, HttpServletRequest request) {
         return buildError(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno del servicio", request.getRequestURI(), null);
     }
 
+    // Construye el cuerpo estandar de error usado por todos los handlers anteriores.
+    // Tener este metodo privado reduce duplicacion y mantiene un formato uniforme de respuesta.
     private ResponseEntity<ApiErrorDTO> buildError(
         HttpStatus status,
         String message,

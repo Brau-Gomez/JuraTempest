@@ -17,10 +17,15 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
 
+    // Constructor usado por Spring para inyectar el servicio encargado de validar y leer JWT.
+    // El filtro depende de JwtService para no mezclar criptografia y reglas HTTP en la misma clase.
     public JwtAuthenticationFilter(JwtService jwtService) {
         this.jwtService = jwtService;
     }
 
+    // Se ejecuta una vez por cada request y revisa si viene un token Bearer valido.
+    // Si el token es correcto, cargamos la autenticacion en SecurityContextHolder para que Spring Security
+    // pueda aplicar reglas como hasAnyRole en la configuracion de seguridad.
     @Override
     protected void doFilterInternal(
         HttpServletRequest request,

@@ -13,6 +13,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 public class SecurityConfig {
+    // Define la cadena de filtros de seguridad que Spring Security aplicara a cada request.
+    // Lo configuramos stateless porque usamos JWT: el servidor no guarda sesion,
+    // cada peticion debe traer su token y el filtro JWT valida la identidad del usuario.
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter)
         throws Exception {
@@ -29,6 +32,8 @@ public class SecurityConfig {
             .build();
     }
 
+    // Expone el codificador de passwords como bean para poder inyectarlo en los servicios.
+    // BCrypt se usa porque guarda passwords con hash y salt, evitando persistir texto plano.
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

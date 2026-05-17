@@ -23,6 +23,8 @@ public class JwtService {
     private final String secret;
     private final long expirationMinutes;
 
+    // Constructor usado por Spring para inyectar ObjectMapper y valores configurados en application.properties.
+    // Mantener secret y expiracion fuera del codigo permite cambiar seguridad sin recompilar la aplicacion.
     public JwtService(
         ObjectMapper objectMapper,
         @Value("${app.jwt.secret}") String secret,
@@ -33,6 +35,8 @@ public class JwtService {
         this.expirationMinutes = expirationMinutes;
     }
 
+    // Genera un token JWT para un usuario autenticado o recien registrado.
+    // Incluimos email, id, roles y expiracion para que otros servicios puedan validar identidad y permisos.
     public String generarToken(Usuario usuario) {
         try {
             Map<String, Object> header = Map.of("alg", "HS256", "typ", "JWT");
@@ -53,6 +57,8 @@ public class JwtService {
         }
     }
 
+    // Valida estructura, firma y expiracion del token.
+    // Retornamos false ante cualquier error para que la capa de seguridad rechace tokens corruptos o vencidos.
     public boolean esTokenValido(String token) {
         try {
             Map<String, Object> claims = obtenerClaims(token);
@@ -63,10 +69,14 @@ public class JwtService {
         }
     }
 
+    // Extrae el email guardado en el claim sub del token.
+    // Usamos sub porque en JWT representa el sujeto o identidad principal del token.
     public String obtenerEmail(String token) {
         return String.valueOf(obtenerClaims(token).get("sub"));
     }
 
+    // Extrae los roles del token y los devuelve como Set para evitar duplicados.
+    // Se contempla List porque al deserializar JSON Jackson suele convertir arreglos en listas.
     @SuppressWarnings("unchecked")
     public Set<String> obtenerRoles(String token) {
         Object roles = obtenerClaims(token).get("roles");
@@ -76,6 +86,8 @@ public class JwtService {
         return ((Set<String>) roles);
     }
 
+    // Lee y valida los claims internos del JWT.
+    // Primero verifica cantidad de partes y firma; solo despues decodifica el payload para confiar en sus datos.
     private Map<String, Object> obtenerClaims(String token) {
         try {
             String[] parts = token.split("\\.");
@@ -93,11 +105,15 @@ public class JwtService {
         }
     }
 
+    // Serializa un mapa a JSON y lo codifica en Base64 URL-safe sin padding.
+    // JWT usa este formato para que header y payload puedan viajar correctamente dentro de URLs y headers HTTP.
     private String encodeJson(Map<String, Object> value) throws Exception {
         byte[] json = objectMapper.writeValueAsBytes(value);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(json);
     }
 
+    // Firma header y payload con HMAC-SHA256 usando el secreto configurado.
+    // Esta firma permite detectar si alguien modifico el token despues de ser emitido.
     private String sign(String value) throws Exception {
         Mac mac = Mac.getInstance("HmacSHA256");
         mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));

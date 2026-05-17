@@ -38,10 +38,14 @@ public class MaquinaDTO {
     @NotNull(message = "La fecha es obligatoria")
     private LocalDate fechaInstalacion;
 
+    // Convierte el DTO a entidad Maquina para persistir datos con JPA.
+    // El DTO protege la API de cambios internos en la entidad.
     public Maquina toModel(){
         return new Maquina(id, nombre, tipo, ubicacion, estado, costoPorBloque, fechaInstalacion);
     }
 
+    // Convierte una entidad Maquina a DTO para responder al cliente.
+    // Normalizamos el estado a mayusculas para entregar un formato uniforme.
     public static MaquinaDTO fromModel(Maquina m){
         if (m == null) return null;
         return MaquinaDTO.builder()

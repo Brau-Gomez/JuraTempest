@@ -65,6 +65,7 @@ public class MaquinaService {
     // Verificamos existencia para devolver un error claro cuando el recurso no existe.
     public void eliminar(Long id){
         if (!maquinaRepository.existsById(id)){
+            log.warn("Intento de eliminar maquina inexistente id={}", id);
             throw new ResourceNotFoundException("Maquina no encontrada con id " + id);
         }
         maquinaRepository.deleteById(id);

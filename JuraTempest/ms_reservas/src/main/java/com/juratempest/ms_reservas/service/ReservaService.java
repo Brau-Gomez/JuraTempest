@@ -142,14 +142,17 @@ public class ReservaService {
     // Esta regla protege la consistencia entre microservicios antes de guardar datos locales.
     private void validarDatos(ReservaDTO dto){
         if (!reservaClient.usuarioExiste(dto.getUsuarioId())){
+            log.warn("Reserva rechazada: usuario inexistente usuarioId={}", dto.getUsuarioId());
             throw new ResourceNotFoundException("USUARIO NO EXISTE");
         }
         
         if (!reservaClient.maquinaActiva(dto.getMaquinaId())){
+            log.warn("Reserva rechazada: maquina no activa maquinaId={}", dto.getMaquinaId());
             throw new ResourceNotFoundException("MAQUINA ESTA BLOQUEADA");
         }
         
         if (!reservaClient.bloqueExiste(dto.getHorarioId())){
+            log.warn("Reserva rechazada: bloque horario inexistente horarioId={}", dto.getHorarioId());
             throw new ResourceNotFoundException("BLOQUE DE HORARIO NO EXISTE");
         }
     }

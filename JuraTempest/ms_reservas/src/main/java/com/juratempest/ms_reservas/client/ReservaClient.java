@@ -5,7 +5,10 @@ import java.time.Duration;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Component
+@Slf4j
 public class ReservaClient {
 
     private final WebClient webClient;
@@ -25,6 +28,7 @@ public class ReservaClient {
             .retrieve()
             .bodyToMono(Boolean.class)
             .timeout(Duration.ofSeconds(3))
+            .doOnError(ex -> log.warn("Error consultando existencia de usuario usuarioId={}", id, ex))
             .onErrorReturn(false)
             .block()
         );
@@ -39,6 +43,7 @@ public class ReservaClient {
             .retrieve()
             .bodyToMono(Boolean.class)
             .timeout(Duration.ofSeconds(3))
+            .doOnError(ex -> log.warn("Error consultando estado de maquina maquinaId={}", id, ex))
             .onErrorReturn(false)
             .block()
         );
@@ -53,6 +58,7 @@ public class ReservaClient {
             .retrieve()
             .bodyToMono(Boolean.class)
             .timeout(Duration.ofSeconds(3))
+            .doOnError(ex -> log.warn("Error consultando existencia de bloque horario horarioId={}", id, ex))
             .onErrorReturn(false)
             .block()
         );

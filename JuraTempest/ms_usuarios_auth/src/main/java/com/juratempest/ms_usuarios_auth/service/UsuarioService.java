@@ -154,6 +154,7 @@ public class UsuarioService {
     // Validar antes permite responder con 404 claro en vez de fallar silenciosamente.
     public void eliminar(Long id) {
         if (!usuarioRepository.existsById(id)) {
+            log.warn("Intento de eliminar usuario inexistente id={}", id);
             throw new ResourceNotFoundException("Usuario no encontrado con id " + id);
         }
         usuarioRepository.deleteById(id);

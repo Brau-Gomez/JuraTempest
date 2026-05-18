@@ -5,7 +5,10 @@ import java.time.Duration;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Component
+@Slf4j
 public class UsuarioClient {
 
     private final WebClient webClient;
@@ -25,6 +28,7 @@ public class UsuarioClient {
             .retrieve()
             .bodyToMono(Boolean.class)
             .timeout(Duration.ofSeconds(3))
+            .doOnError(ex -> log.warn("Error consultando existencia de usuario usuarioId={}", id, ex))
             .onErrorReturn(false)
             .block()
         );

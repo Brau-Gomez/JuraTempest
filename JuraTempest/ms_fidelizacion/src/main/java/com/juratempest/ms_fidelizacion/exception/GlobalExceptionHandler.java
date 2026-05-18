@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.*;
 import com.juratempest.ms_fidelizacion.dto.ApiErrorDTO;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 
 @ControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     // Captura cuando no se encuentra un registro o una referencia necesaria.
@@ -21,6 +23,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiErrorDTO> manejarNotFound(
             ResourceNotFoundException ex, HttpServletRequest request) {
+                log.warn("Recurso no encontrado path={} mensaje={}", request.getRequestURI(), ex.getMessage());
                 return error(HttpStatus.NOT_FOUND,
                     ex.getMessage(),
                     request.getRequestURI(),
@@ -36,6 +39,7 @@ public class GlobalExceptionHandler {
                 Map<String, String> validaciones = new HashMap<>();
                 ex.getBindingResult().getFieldErrors().forEach(error -> validaciones.put(error.getField(), error.getDefaultMessage()));
 
+                log.warn("Validacion fallida path={} errores={}", request.getRequestURI(), validaciones);
                 return error(HttpStatus.BAD_REQUEST,
                     "Datos de entrada no validos",
                     request.getRequestURI(),
@@ -46,6 +50,7 @@ public class GlobalExceptionHandler {
     //Maneja los datos erroneos ingresados por el cliente.
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ApiErrorDTO> manejarBadRequest(BadRequestException ex, HttpServletRequest request){
+        log.warn("Solicitud invalida path={} mensaje={}", request.getRequestURI(), ex.getMessage());
         return error(HttpStatus.BAD_REQUEST,
             ex.getMessage(),
             request.getRequestURI(),
@@ -56,6 +61,7 @@ public class GlobalExceptionHandler {
     //Maneja cualquier error no previsto 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorDTO> manejarGeneric(Exception ex, HttpServletRequest request){
+        log.error("Error inesperado path={}", request.getRequestURI(), ex);
         return error(HttpStatus.INTERNAL_SERVER_ERROR,
             "Error interno del servicio",
             request.getRequestURI(),

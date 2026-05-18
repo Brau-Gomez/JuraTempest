@@ -62,15 +62,15 @@ public class FidelizacionService {
     // Primero validamos contra ms_usuarios_auth para no guardar puntos asociados a usuarios inexistentes.
     public FidelizacionDTO crear(FidelizacionDTO dto) {
         if (!usuarioClient.usuarioExiste(dto.getUsuarioId())){
+            log.warn("Intento de crear fidelizacion para usuario inexistente usuarioId={}", dto.getUsuarioId());
             throw new ResourceNotFoundException("Usuario no existe");
         }
         Fidelizacion fidelizacion = dto.toModel();
 
         fidelizacion.setFechaRegistro(LocalDate.now());
-        log.info("Registro creado con exito id={}", fidelizacion.getId());
-        return FidelizacionDTO.fromModel(
-                repository.save(fidelizacion)
-        );
+        Fidelizacion guardada = repository.save(fidelizacion);
+        log.info("Registro de fidelizacion creado id={} usuarioId={}", guardada.getId(), guardada.getUsuarioId());
+        return FidelizacionDTO.fromModel(guardada);
         
     }
 
@@ -79,6 +79,7 @@ public class FidelizacionService {
     public void eliminar(Long id) {
 
         if (!repository.existsById(id)) {
+            log.warn("Intento de eliminar fidelizacion inexistente id={}", id);
             throw new ResourceNotFoundException("Registro no encontrado");
         }
 
@@ -101,6 +102,7 @@ public class FidelizacionService {
     public FidelizacionDTO actualizar(Long id, FidelizacionDTO dto){
 
         if (!usuarioClient.usuarioExiste(dto.getUsuarioId())){
+            log.warn("Intento de actualizar fidelizacion con usuario inexistente id={} usuarioId={}", id, dto.getUsuarioId());
             throw new ResourceNotFoundException("Usuario no existe en la base de datos");
         }
         Fidelizacion fidelizacion = repository.findById(id).orElseThrow(() ->

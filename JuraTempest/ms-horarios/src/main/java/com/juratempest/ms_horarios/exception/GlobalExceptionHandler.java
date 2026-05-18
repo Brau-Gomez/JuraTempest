@@ -13,16 +13,19 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import com.juratempest.ms_horarios.dto.ApiErrorDTO;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 
 
 
 @ControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     // Maneja recursos inexistentes, como un bloque horario que no se encuentra.
     // Responde 404 para separar errores de busqueda de errores de validacion.
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiErrorDTO> manejarNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
+        log.warn("Recurso no encontrado path={} mensaje={}", request.getRequestURI(), ex.getMessage());
         return error(HttpStatus.NOT_FOUND,
             ex.getMessage(),
             request.getRequestURI(),
@@ -38,6 +41,7 @@ public class GlobalExceptionHandler {
         Map<String, String> validaciones = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error -> validaciones.put(error.getField(), error.getDefaultMessage()));
         
+        log.warn("Validacion fallida path={} errores={}", request.getRequestURI(), validaciones);
         return error(HttpStatus.BAD_REQUEST,
             "Datos de entrada no validos",
             request.getRequestURI(),
@@ -49,15 +53,17 @@ public class GlobalExceptionHandler {
     // Usamos HTTP 400 porque la peticion no cumple las reglas del dominio.
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ApiErrorDTO> manejarBadRequest(BadRequestException ex, HttpServletRequest request) {
-    return error(HttpStatus.BAD_REQUEST,
-        ex.getMessage(),
-        request.getRequestURI(),
-        null);
+        log.warn("Solicitud invalida path={} mensaje={}", request.getRequestURI(), ex.getMessage());
+        return error(HttpStatus.BAD_REQUEST,
+            ex.getMessage(),
+            request.getRequestURI(),
+            null);
     }
     
     // Maneja cualquier excepcion no prevista.
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorDTO> manejarGeneric(Exception ex, HttpServletRequest request) {
+        log.error("Error inesperado path={}", request.getRequestURI(), ex);
         return error(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno del servicio", request.getRequestURI(), null);
     }
 

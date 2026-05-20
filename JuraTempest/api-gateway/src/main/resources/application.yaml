@@ -1,5 +1,6 @@
 server:
   port: 9090
+  address: 0.0.0.0
 
 spring:
   application:
@@ -14,33 +15,35 @@ spring:
         webflux:
           routes:
             - id: ms-usuarios-auth
-              uri: http://localhost:9091
+              uri: http://${MS_HOST:localhost}:9091
               predicates:
                 - Path=/auth/**,/users/**
 
             - id: ms-maquinas
-              uri: http://localhost:9092
+              uri: http://${MS_HOST:localhost}:9092
               predicates:
                 - Path=/maquinas/**
 
             - id: ms-horarios
-              uri: http://localhost:9093
+              uri: http://${MS_HOST:localhost}:9093
               predicates:
                 - Path=/horarios/**
 
             - id: ms-reservas
-              uri: http://localhost:9094
+              uri: http://${MS_HOST:localhost}:9094
               predicates:
                 - Path=/reservas/**
 
             - id: ms-fidelizacion
-              uri: http://localhost:9095
+              uri: http://${MS_HOST:localhost}:9095
               predicates:
                 - Path=/fidelizacion/**
 
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://${EUREKA_HOST:localhost}:8761/eureka/
     register-with-eureka: true
     fetch-registry: true
+  instance:
+    prefer-ip-address: true

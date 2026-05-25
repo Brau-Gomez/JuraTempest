@@ -191,6 +191,14 @@ Ejemplo de login:
   "password": "123456"
 }
 ```
+Usuario Admin para pruebas:
+
+```
+user: admin@juratempest.cl
+pass: admin123 
+```
+
+
 
 ### `ms_maquinas`
 

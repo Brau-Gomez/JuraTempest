@@ -176,7 +176,7 @@ Ejemplo de registro:
 {
   "nombre": "Ana",
   "apellido": "Perez",
-  "email": "ana.perez@correo.cl",
+  "email": "ana.perez@juratempest.cl",
   "password": "123456",
   "frecuente": true,
   "roles": ["CLIENTE"]
@@ -187,14 +187,14 @@ Ejemplo de login:
 
 ```json
 {
-  "email": "ana.perez@correo.cl",
+  "email": "ana.perez@juratempest.cl",
   "password": "123456"
 }
 ```
 Usuario Admin para pruebas:
 
 ```
-user: admin@juratempest.cl
+email: admin@juratempest.cl
 pass: admin123 
 ```
 

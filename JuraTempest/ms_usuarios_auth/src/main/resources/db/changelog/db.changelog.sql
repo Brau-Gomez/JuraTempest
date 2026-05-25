@@ -35,16 +35,16 @@ INSERT INTO rol (nombre) VALUES
 
 --changeset juratempest:usuarios-5
 INSERT INTO usuario (nombre, apellido, email, password, frecuente, activo, fecha_registro) VALUES
-('Admin', 'Sistema', 'admin@juratempest.cl', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhiV1/zG2jAAQrGVVVuLzK8ZqmIdr2jG', TRUE, TRUE, '2026-05-01'),
-('Operador', 'Principal', 'operador@juratempest.cl', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhiV1/zG2jAAQrGVVVuLzK8ZqmIdr2jG', FALSE, TRUE, '2026-05-01'),
-('Camila', 'Rojas', 'camila.rojas@mail.cl', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhiV1/zG2jAAQrGVVVuLzK8ZqmIdr2jG', TRUE, TRUE, '2026-05-01'),
-('Nicolas', 'Paredes', 'nicolas.paredes@mail.cl', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhiV1/zG2jAAQrGVVVuLzK8ZqmIdr2jG', TRUE, TRUE, '2026-05-01'),
-('Valentina', 'Munoz', 'valentina.munoz@mail.cl', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhiV1/zG2jAAQrGVVVuLzK8ZqmIdr2jG', FALSE, TRUE, '2026-05-01'),
-('Benjamin', 'Silva', 'benjamin.silva@mail.cl', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhiV1/zG2jAAQrGVVVuLzK8ZqmIdr2jG', FALSE, TRUE, '2026-05-01'),
-('Ignacia', 'Torres', 'ignacia.torres@mail.cl', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhiV1/zG2jAAQrGVVVuLzK8ZqmIdr2jG', TRUE, TRUE, '2026-05-01'),
-('Martin', 'Carrasco', 'martin.carrasco@mail.cl', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhiV1/zG2jAAQrGVVVuLzK8ZqmIdr2jG', FALSE, TRUE, '2026-05-01'),
-('Sofia', 'Herrera', 'sofia.herrera@mail.cl', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhiV1/zG2jAAQrGVVVuLzK8ZqmIdr2jG', TRUE, TRUE, '2026-05-01'),
-('Diego', 'Fuentes', 'diego.fuentes@mail.cl', '$2a$10$7EqJtq98hPqEX7fNZaFWoOhiV1/zG2jAAQrGVVVuLzK8ZqmIdr2jG', FALSE, TRUE, '2026-05-01');
+('Admin', 'Sistema', 'admin@juratempest.cl', '$2a$10$FlOyPiHgGGb4Y1laa6dEa.6vah2pqCtBETCFJW0LXEjMU8uBqEzii', TRUE, TRUE, '2026-05-01'),
+('Operador', 'Principal', 'operador@juratempest.cl', '$2a$10$an17LIdbUM73iSJTRer1WOos6ck3bXoVBtvUZ05qu2V1BCViPvWwi', FALSE, TRUE, '2026-05-01'),
+('Camila', 'Rojas', 'camila.rojas@mail.cl', '$2a$10$sEvjAWSY2eLfcseQFG0M8.b7Cn8oz1CyCCXDrqj4jaQnaJJhX/zyS', TRUE, TRUE, '2026-05-01'),
+('Nicolas', 'Paredes', 'nicolas.paredes@mail.cl', '$2a$10$JavXRgB8YNuTJ0/kiNd/qebUNGWIpPYxtB25M6v//PkvF27P8NdPq', TRUE, TRUE, '2026-05-01'),
+('Valentina', 'Munoz', 'valentina.munoz@mail.cl', '$2a$10$4GvPnQ3DCognTUpHxmscXekNJjyZHd4bW0.NRzF4t8kOKjy5uNp4q', FALSE, TRUE, '2026-05-01'),
+('Benjamin', 'Silva', 'benjamin.silva@mail.cl', '$2a$10$Sn9spTSJ1o7DoqI.nEkMzeQd0vDHyd2VwFbJgQ/X3bRgvnIAqecMO', FALSE, TRUE, '2026-05-01'),
+('Ignacia', 'Torres', 'ignacia.torres@mail.cl', '$2a$10$WEF58iUe4P2LxLjXE7mJ2up4ObDK1jNI.CPJJRgkS1VTk0SSIsD3q', TRUE, TRUE, '2026-05-01'),
+('Martin', 'Carrasco', 'martin.carrasco@mail.cl', '$2a$10$83NVlGZ7OHJZ0KVWjiyJ0O6H/wD22819cAHSaFCiL9negiZNbkK6O', FALSE, TRUE, '2026-05-01'),
+('Sofia', 'Herrera', 'sofia.herrera@mail.cl', '$2a$10$vaM0pjRYExVsv0NeHAeoiOfEBMvaKp94tFdjie/qAzdpRTCddvPE6', TRUE, TRUE, '2026-05-01'),
+('Diego', 'Fuentes', 'diego.fuentes@mail.cl', '$2a$10$cjsVKFjscUfsTS1KWdRmou3io2YOv6Sdc/8xHtGJt/87hPqi0mnpK', FALSE, TRUE, '2026-05-01');
 
 --changeset juratempest:usuarios-6
 INSERT INTO usuario_roles (usuario_id, rol_id) VALUES

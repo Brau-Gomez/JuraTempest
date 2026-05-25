@@ -5,6 +5,27 @@
 JuraTempest es una aplicacion construida con arquitectura de microservicios para administrar un centro arcade. El sistema permite gestionar usuarios, autenticacion, maquinas, bloques horarios, reservas y puntos de fidelizacion.
 
 El proyecto corresponde al proyecto semestral para Desarrollo FullStack 1. Su objetivo es demostrar dominio de Spring Boot, persistencia con JPA + Hibernate, migraciones con Liquibase, patron CSR, validaciones, manejo centralizado de errores, respuestas REST, comunicacion entre microservicios, API Gateway, Eureka Server.
+
+## Estructura del proyecto
+
+Este repositorio esta organizado de la siguiente forma:
+
+- En la **raiz del repositorio** (`/`) se encuentra este `README.md`.
+- El **codigo fuente del proyecto** esta dentro de la carpeta `JuraTempest/`.
+
+```text
+/
+├─ README.md
+└─ JuraTempest/
+   ├─ api-gateway/
+   ├─ eureka_server/
+   ├─ ms_usuarios_auth/
+   ├─ ms_maquinas/
+   ├─ ms-horarios/
+   ├─ ms_reservas/
+   └─ ms_fidelizacion/
+```
+
 ```
 Integrantes
 - Braulio Gomez
@@ -99,7 +120,7 @@ Cada microservicio de negocio trabaja con su propia base de datos. Esto respeta 
 | `ms_maquinas` | `maquinas_db` | `src/main/resources/db/changelog/db.changelog.sql` |
 | `ms-horarios` | `horarios_db` | `src/main/resources/db/changelog/db.changelog.sql` |
 | `ms_reservas` | `reservas_db` | `src/main/resources/db/changelog/db.changelog.sql` |
-| `ms_fidelizacion` | `fidelizacion_db` |
+| `ms_fidelizacion` | `fidelizacion_db` | `src/main/resources/db/changelog/db.changelog.sql` |
 
 
 ## Patron CSR aplicado
@@ -451,7 +472,7 @@ POST http://localhost:9090/reservas
 POST http://localhost:9090/fidelizacion
 ```
 
-## Reglas de negocio defendibles
+## Reglas de negocio
 
 - No se puede crear una reserva si el usuario no existe.
 - No se puede crear una reserva si la maquina no esta activa.
@@ -460,4 +481,3 @@ POST http://localhost:9090/fidelizacion
 - No se pueden registrar puntos de fidelizacion para usuarios inexistentes.
 - No se aceptan datos obligatorios nulos o vacios.
 - No se aceptan valores numericos negativos o iguales a cero cuando el dominio exige valores positivos.
-

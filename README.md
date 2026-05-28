@@ -489,3 +489,72 @@ POST http://localhost:9090/fidelizacion
 - No se pueden registrar puntos de fidelizacion para usuarios inexistentes.
 - No se aceptan datos obligatorios nulos o vacios.
 - No se aceptan valores numericos negativos o iguales a cero cuando el dominio exige valores positivos.
+
+
+## 8) Inventario completo de endpoints (localhost)
+  
+### 8.1 Auth
+
+- `POST http://localhost:9090/auth/register`
+- `POST http://localhost:9090/auth/login`
+- `GET http://localhost:9090/auth/validate`
+
+### 8.2 Users
+
+- `GET http://localhost:9090/users`
+- `GET http://localhost:9090/users/{id}`
+- `GET http://localhost:9090/users/{id}/exists`
+- `GET http://localhost:9090/users/email/{email}`
+- `GET http://localhost:9090/users/rol/{rol}`
+- `GET http://localhost:9090/users/frecuentes`
+- `GET http://localhost:9090/users/total`
+- `POST http://localhost:9090/users`
+- `PUT http://localhost:9090/users/{id}`
+- `DELETE http://localhost:9090/users/{id}`
+
+### 8.3 Maquinas
+
+- `GET http://localhost:9090/maquinas`
+- `GET http://localhost:9090/maquinas/{id}`
+- `GET http://localhost:9090/maquinas/{id}/existe`
+- `GET http://localhost:9090/maquinas/activa/{id}`
+- `GET http://localhost:9090/maquinas/estado/{estado}`
+- `GET http://localhost:9090/maquinas/tipo/{tipo}`
+- `GET http://localhost:9090/maquinas/total`
+- `POST http://localhost:9090/maquinas`
+- `PUT http://localhost:9090/maquinas/{id}`
+- `DELETE http://localhost:9090/maquinas/{id}`
+
+### 8.4 Horarios
+
+- `GET http://localhost:9090/horarios`
+- `GET http://localhost:9090/horarios/{id}`
+- `GET http://localhost:9090/horarios/{id}/existe`
+- `GET http://localhost:9090/horarios/fecha/{fecha}`
+- `GET http://localhost:9090/horarios/disponibles`
+- `GET http://localhost:9090/horarios/rango?inicio=YYYY-MM-DD&fin=YYYY-MM-DD`
+- `GET http://localhost:9090/horarios/total`
+- `POST http://localhost:9090/horarios`
+- `PUT http://localhost:9090/horarios/{id}`
+- `DELETE http://localhost:9090/horarios/{id}`
+
+### 8.5 Reservas
+
+- `GET http://localhost:9090/reservas`
+- `GET http://localhost:9090/reservas/{id}`
+- `GET http://localhost:9090/reservas/usuario/{usuarioId}`
+- `GET http://localhost:9090/reservas/estado/{estado}`
+- `GET http://localhost:9090/reservas/total`
+- `POST http://localhost:9090/reservas`
+- `PUT http://localhost:9090/reservas/{id}`
+- `DELETE http://localhost:9090/reservas/{id}`
+
+### 8.6 Fidelizacion
+
+- `GET http://localhost:9090/fidelizacion`
+- `GET http://localhost:9090/fidelizacion/{id}`
+- `GET http://localhost:9090/fidelizacion/usuario/{usuarioId}`
+- `GET http://localhost:9090/fidelizacion/total/{usuarioId}`
+- `POST http://localhost:9090/fidelizacion`
+- `PUT http://localhost:9090/fidelizacion/{id}`
+- `DELETE http://localhost:9090/fidelizacion/{id}`

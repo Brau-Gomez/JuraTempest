@@ -39,6 +39,11 @@ spring:
               predicates:
                 - Path=/fidelizacion/**
 
+            - id: ms-notificaciones
+              uri: http://${MS_HOST:localhost}:9096
+              predicates:
+                - Path=/notificaciones/**
+
 eureka:
   client:
     service-url:

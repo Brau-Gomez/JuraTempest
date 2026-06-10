@@ -33,22 +33,35 @@ public class NotificacionDTO {
 
     @NotBlank(message = "El canal es obligatorio")
     private String canal;
-
+    @NotNull(message = "El estado es obligatorio")
     private Boolean leida;
+    @NotNull(message = "La fecha de creacion es obligatoria")
     private LocalDateTime fechaCreacion;
 
     public Notificacion toModel() {
-        // TODO: Crear una entidad Notificacion usando los campos recibidos en este DTO.
-        // TODO: Mapear id, usuarioId, titulo, mensaje, tipo, canal, leida y fechaCreacion.
-        // TODO: Retornar la entidad para que el service pueda persistirla con el repository.
-        return null;
+        Notificacion notificacion = new Notificacion();
+        notificacion.setId(id);
+        notificacion.setUsuarioId(usuarioId);
+        notificacion.setTipo(tipo);
+        notificacion.setTitulo(titulo);
+        notificacion.setMensaje(mensaje);
+        notificacion.setCanal(canal);
+        notificacion.setLeida(leida);
+        notificacion.setFechaCreacion(fechaCreacion);
+        return notificacion;
     }
 
     public static NotificacionDTO fromModel(Notificacion notificacion) {
-        // TODO: Validar si notificacion es null; si lo es, retornar null.
-        // TODO: Crear un NotificacionDTO a partir de la entidad recibida.
-        // TODO: Mapear id, usuarioId, titulo, mensaje, tipo, canal, leida y fechaCreacion.
-        // TODO: Retornar el DTO para responder desde la API sin exponer directamente la entidad JPA.
-        return null;
+        if (notificacion == null) return null;
+        return NotificacionDTO.builder()
+            .id(notificacion.getId())
+            .usuarioId(notificacion.getUsuarioId())
+            .tipo(notificacion.getTipo())
+            .titulo(notificacion.getTitulo())
+            .mensaje(notificacion.getMensaje())
+            .canal(notificacion.getCanal())
+            .leida(notificacion.getLeida())
+            .fechaCreacion(notificacion.getFechaCreacion())
+            .build();
     }
 }

@@ -15,32 +15,32 @@ spring:
         webflux:
           routes:
             - id: ms-usuarios-auth
-              uri: http://${MS_HOST:localhost}:9091
+              uri: lb://ms-usuarios-auth
               predicates:
                 - Path=/auth/**,/users/**
 
             - id: ms-maquinas
-              uri: http://${MS_HOST:localhost}:9092
+              uri: lb://ms-maquinas
               predicates:
                 - Path=/maquinas/**
 
             - id: ms-horarios
-              uri: http://${MS_HOST:localhost}:9093
+              uri: lb://ms-horarios
               predicates:
                 - Path=/horarios/**
 
             - id: ms-reservas
-              uri: http://${MS_HOST:localhost}:9094
+              uri: lb://ms-reservas
               predicates:
                 - Path=/reservas/**
 
             - id: ms-fidelizacion
-              uri: http://${MS_HOST:localhost}:9095
+              uri: lb://ms-fidelizacion
               predicates:
                 - Path=/fidelizacion/**
 
             - id: ms-notificaciones
-              uri: http://${MS_HOST:localhost}:9096
+              uri: lb://ms-notificaciones
               predicates:
                 - Path=/notificaciones/**
 

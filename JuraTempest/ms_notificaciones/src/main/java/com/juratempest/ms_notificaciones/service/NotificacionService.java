@@ -123,7 +123,7 @@ public class NotificacionService {
             throw new BadRequestException("EL usuario no puede estar vacio. Favor ingresar usuario");
         }
         else if (!usuarioClient.usuarioExiste(usuarioId)){
-            throw new BadRequestException("Usuario no existe");
+            throw new ResourceNotFoundException("Usuario no existe");
         }
 
         List<Notificacion> notificaciones = repository.findByUsuarioIdAndLeidaFalse(usuarioId);

@@ -1,10 +1,14 @@
 package com.juratempest.ms_notificaciones.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.juratempest.ms_notificaciones.client.UsuarioClient;
 import com.juratempest.ms_notificaciones.dto.NotificacionDTO;
+import com.juratempest.ms_notificaciones.exception.BadRequestException;
+import com.juratempest.ms_notificaciones.exception.ResourceNotFoundException;
 import com.juratempest.ms_notificaciones.model.Notificacion;
 import com.juratempest.ms_notificaciones.repository.NotificacionRepository;
 
@@ -15,103 +19,182 @@ import lombok.extern.slf4j.Slf4j;
 public class NotificacionService {
 
     private final NotificacionRepository repository;
+    private final UsuarioClient usuarioClient;
 
-    public NotificacionService(NotificacionRepository repository) {
-        // TODO: Asignar el repository al atributo de la clase para poder consultar y persistir notificaciones.
+    public NotificacionService(NotificacionRepository repository, UsuarioClient usuarioClient) {
         this.repository = repository;
+        this.usuarioClient = usuarioClient;
     }
-
+    //LISTAR
     public List<NotificacionDTO> listar() {
-        // TODO: Buscar todas las notificaciones con repository.findAll().
-        // TODO: Convertir cada entidad Notificacion a NotificacionDTO usando NotificacionDTO.fromModel.
-        // TODO: Retornar la lista de DTOs para que el controlador responda al cliente.
-        return List.of();
+        return repository.findAll().stream().map(NotificacionDTO::fromModel).toList();
     }
-
+    //BUSCAR POR ID
     public NotificacionDTO buscarPorId(Long id) {
-        // TODO: Obtener la entidad usando obtenerNotificacion(id).
-        // TODO: Convertir la entidad encontrada a DTO.
-        // TODO: Retornar el DTO o lanzar ResourceNotFoundException desde obtenerNotificacion si no existe.
-        return null;
+        return NotificacionDTO.fromModel(obtenerNotificacion(id));
     }
-
+    //BUSCAR POR USUARIO
     public List<NotificacionDTO> buscarPorUsuario(Long usuarioId) {
-        // TODO: Validar que usuarioId no sea null.
-        // TODO: Buscar notificaciones por usuarioId usando repository.findByUsuarioId(usuarioId).
-        // TODO: Convertir el resultado a una lista de DTOs.
-        return List.of();
+        if (usuarioId == null){
+            log.warn("Usuario vacio, ingrese nuevamente");
+            throw new BadRequestException("El usuario no puede estar vacio, Ingrese su nombre de usuario nuevamente");
+        }
+        else if (!usuarioClient.usuarioExiste(usuarioId)){
+            log.warn("Usuario inexistente");
+            throw new BadRequestException("Usuario no existe");
+        
+        }
+        return repository.findByUsuarioId(usuarioId).stream().map(NotificacionDTO::fromModel).toList();
+        
     }
-
+    //BUSCAR NO LEIDAS POR USUARIO
     public List<NotificacionDTO> buscarNoLeidasPorUsuario(Long usuarioId) {
-        // TODO: Validar que usuarioId no sea null.
-        // TODO: Buscar notificaciones no leidas usando repository.findByUsuarioIdAndLeidaFalse(usuarioId).
-        // TODO: Convertir el resultado a una lista de DTOs.
-        return List.of();
+        if (usuarioId == null){
+            log.warn("Usuario vacio, no se encontraron notificaciones");
+            throw new BadRequestException("Usuario vacio, favor ingresar usuario para consultar notifiaciones");
+        }
+        else if (!usuarioClient.usuarioExiste(usuarioId)){
+            log.warn("Usuario inexistente");
+            throw new BadRequestException("Usuario no existe");
+        
+        }
+        return repository.findByUsuarioIdAndLeidaFalse(usuarioId).stream().map(NotificacionDTO::fromModel).toList();
     }
-
+    //BUSCAR POR TIPO
     public List<NotificacionDTO> buscarPorTipo(String tipo) {
-        // TODO: Validar que tipo no venga null ni vacio.
-        // TODO: Normalizar tipo a mayusculas.
-        // TODO: Validar que tipo sea uno de: RESERVA, PAGO, MANTENIMIENTO, TORNEO, PROMOCION, SISTEMA.
-        // TODO: Buscar notificaciones por tipo usando repository.findByTipo(tipoNormalizado).
-        // TODO: Convertir el resultado a DTOs.
-        return List.of();
+        if (tipo == null){
+            log.warn("Tipo vacio, no se encontraron notificaciones");
+            throw new BadRequestException("Tipo vacio, favor ingresar tipo para consultar notifiaciones");
+        }
+        tipo = tipo.trim().toUpperCase();
+        if(!List.of("RESERVA", "PAGO", "MANTENIMIENTO", "TORNEO","PROMOCION", "SISTEMA").contains(tipo)){
+            throw new BadRequestException("Tipo no valido, Favor intentar con uno de los siguientes: RESERVA, PAGO, MANTENIMIENTO, TORNEO, PROMOCION, SISTEMA");
+        }
+        return repository.findByTipo(tipo).stream().map(NotificacionDTO::fromModel).toList();
     }
-
+    //BUSCAR POR CANAL
     public Long totalNoLeidasPorUsuario(Long usuarioId) {
-        // TODO: Validar que usuarioId no sea null.
-        // TODO: Contar notificaciones no leidas con repository.countByUsuarioIdAndLeidaFalse(usuarioId).
-        // TODO: Retornar el total encontrado.
-        return 0L;
+        if (usuarioId == null){
+            log.warn("Usuario vacio, no se encontraron notificaciones");
+            throw new BadRequestException("Usuario no puede estar vacio, Ingrese el usuario para consultar las notificaciones");
+        }       
+        else if (!usuarioClient.usuarioExiste(usuarioId)){
+            log.warn("Usuario inexistente");
+            throw new BadRequestException("Usuario no existe");
+        
+        }
+        return repository.countByUsuarioIdAndLeidaFalse(usuarioId);
     }
-
+    //CREAR
     public NotificacionDTO crear(NotificacionDTO dto) {
-        // TODO: Validar los datos principales del DTO con validarDatos(dto).
-        // TODO: Convertir el DTO a entidad Notificacion.
-        // TODO: Asignar leida = false para toda notificacion nueva.
-        // TODO: Asignar fechaCreacion = LocalDateTime.now().
-        // TODO: Normalizar tipo y canal a mayusculas antes de guardar.
-        // TODO: Guardar la entidad con repository.save().
-        // TODO: Convertir la entidad guardada a DTO y retornarla.
-        return null;
-    }
+        if (dto == null || dto.getTipo() == null || dto.getCanal() == null){
+            throw new BadRequestException("Los campos tipo y canal son obligatorios");
+        }
 
+        dto.setTipo(dto.getTipo().trim().toUpperCase());
+        dto.setCanal(dto.getCanal().trim().toUpperCase());
+
+        validarDatos(dto);
+
+        dto.setLeida(false);
+        dto.setFechaCreacion(LocalDateTime.now());
+
+        Notificacion notificacion = repository.save(dto.toModel());
+        log.info("Notificacion creada id={}", notificacion.getId());
+
+        return NotificacionDTO.fromModel(notificacion);
+    }
+    //ACTUALIZAR
     public NotificacionDTO marcarComoLeida(Long id) {
-        // TODO: Buscar la notificacion por id usando obtenerNotificacion(id).
-        // TODO: Cambiar leida a true.
-        // TODO: Guardar los cambios con repository.save().
-        // TODO: Retornar la notificacion actualizada como DTO.
-        return null;
-    }
 
+        Notificacion noLeida = obtenerNotificacion(id);
+        if (noLeida.getLeida()){
+            throw new BadRequestException("Notificacion ya marcada como leida");
+        }
+        noLeida.setLeida(true);
+        Notificacion leida = repository.save(noLeida);
+        log.info("Notificacion marcada como leida id={}", id);
+        return NotificacionDTO.fromModel(leida);
+
+    }
+    //MARCAR TODAS COMO LEIDAS
     public void marcarTodasComoLeidas(Long usuarioId) {
-        // TODO: Validar que usuarioId no sea null.
-        // TODO: Buscar todas las notificaciones no leidas del usuario.
-        // TODO: Recorrer la lista y cambiar leida a true en cada entidad.
-        // TODO: Guardar todas las notificaciones actualizadas con repository.saveAll().
-    }
+        if (usuarioId == null ){
+            throw new BadRequestException("EL usuario no puede estar vacio. Favor ingresar usuario");
+        }
+        else if (!usuarioClient.usuarioExiste(usuarioId)){
+            throw new BadRequestException("Usuario no existe");
+        }
 
+        List<Notificacion> notificaciones = repository.findByUsuarioIdAndLeidaFalse(usuarioId);
+        for (Notificacion notificacion : notificaciones){
+            notificacion.setLeida(true);
+        }
+
+        repository.saveAll(notificaciones);
+        log.info("Notificaciones marcadas como leidas usuarioId={}", usuarioId);
+    }
+    //ELIMINAR
     public void eliminar(Long id) {
-        // TODO: Validar que la notificacion exista usando obtenerNotificacion(id).
-        // TODO: Eliminar la notificacion con repository.deleteById(id).
-        // TODO: Registrar en logs que la eliminacion fue ejecutada.
+        Notificacion notificacion = obtenerNotificacion(id);
+        if (!notificacion.getLeida()){
+            throw new BadRequestException("No se puede eliminar una notificacion no leida");
+        }
+
+        repository.deleteById(id);
+        log.info("Notificacion eliminada id={}", id);
     }
 
+    //BUSCAR SOLO LAS NO LEIDAS
+    public List<NotificacionDTO> obtenerNoLeidas(){
+        return repository.findByLeidaFalse().stream().map(NotificacionDTO::fromModel).toList();
+    }
+
+
+    //METODOS PRIVADOS
+    //Confirma existensia de notificaciones y valida datos de notificacion.
     private Notificacion obtenerNotificacion(Long id) {
-        // TODO: Validar que id no sea null.
-        // TODO: Buscar la notificacion por id usando repository.findById(id).
-        // TODO: Si no existe, lanzar ResourceNotFoundException con un mensaje claro.
-        // TODO: Retornar la entidad encontrada.
-        return null;
+        return repository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Notificacion no encontrada con id " + id));
     }
 
     private void validarDatos(NotificacionDTO dto) {
-        // TODO: Validar que dto no sea null.
-        // TODO: Validar que usuarioId no sea null.
-        // TODO: Validar que titulo no venga null ni vacio.
-        // TODO: Validar que mensaje no venga null ni vacio.
-        // TODO: Validar que tipo sea uno de: RESERVA, PAGO, MANTENIMIENTO, TORNEO, PROMOCION, SISTEMA.
-        // TODO: Validar que canal sea uno de: SISTEMA, EMAIL, SMS_SIMULADO, WHATSAPP_SIMULADO.
-        log.debug("Metodo validarDatos pendiente de implementar");
+
+        if (dto == null 
+            || dto.getUsuarioId() == null
+            || dto.getTipo() == null || dto.getTipo().isBlank()
+            || dto.getCanal() == null || dto.getCanal().isBlank()
+            || dto.getTitulo() == null || dto.getTitulo().isBlank()
+            || dto.getMensaje() == null || dto.getMensaje().isBlank()) {
+            throw new BadRequestException("Faltan datos. Favor revise los campos");
+        }
+
+        if (!usuarioClient.usuarioExiste(dto.getUsuarioId())){
+            throw new ResourceNotFoundException("USUARIO NO EXISTE");
+        }
+
+        List<String> tipos = List.of(
+            "RESERVA", 
+            "PAGO", 
+            "MANTENIMIENTO", 
+            "TORNEO", 
+            "PROMOCION", 
+            "SISTEMA"
+        );
+        if (!tipos.contains(dto.getTipo())){
+            throw new BadRequestException("Tipo no valido, Ingrese uno de los siguientes: RESERVA, PAGO, MANTENIMIENTO, TORNEO, PROMOCION, SISTEMA");
+        }
+        
+        List<String> tipos_canal = List.of(
+            "SISTEMA",
+            "EMAIL", 
+            "SMS_SIMULADO", 
+            "WHATSAPP_SIMULADO"
+        );
+
+        if (!tipos_canal.contains(dto.getCanal())){
+            throw new BadRequestException("Canal no valido. Ingrese uno de los siguientes: SISTEMA, EMAIL, SMS_SIMULADO, WHATSAPP_SIMULADO");
+        }
+
     }
 }

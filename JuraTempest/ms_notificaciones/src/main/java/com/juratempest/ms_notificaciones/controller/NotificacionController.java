@@ -17,87 +17,151 @@ import org.springframework.web.bind.annotation.RestController;
 import com.juratempest.ms_notificaciones.dto.NotificacionDTO;
 import com.juratempest.ms_notificaciones.service.NotificacionService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/notificaciones")
+@Tag(name = "Notificaciones", description = "Operaciones relacionadas con las notificaciones")
 public class NotificacionController {
 
     private final NotificacionService service;
 
     public NotificacionController(NotificacionService service) {
-        // TODO: Asignar el service al atributo para delegar en el las reglas de negocio.
         this.service = service;
     }
 
     @GetMapping
+    @Operation(summary = "Listar todas las notificaciones", description = "Retorna una lista de todas las notificaciones")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Operacion exitosa", content = @Content(mediaType = "application/json", schema = @Schema(implementation = NotificacionDTO.class)))
+    })
     public ResponseEntity<List<NotificacionDTO>> listar() {
-        // TODO: Llamar a service.listar() para obtener todas las notificaciones.
-        // TODO: Retornar ResponseEntity.ok(resultado).
-        return ResponseEntity.ok(List.of());
+        return ResponseEntity.ok(service.listar());
     }
 
+
     @GetMapping("/{id}")
+    @Operation(summary = "Obtener una notificacion por ID", description = "Obtiene una notificacion especifica usando su ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Operacion exitosa",
+            content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = NotificacionDTO.class))),
+        @ApiResponse(responseCode = "404", description = "Notificacion no encontrada")
+    })
+
     public ResponseEntity<NotificacionDTO> buscarPorId(@PathVariable Long id) {
-        // TODO: Llamar a service.buscarPorId(id).
-        // TODO: Retornar ResponseEntity.ok(resultado).
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(service.buscarPorId(id));
     }
 
     @GetMapping("/usuario/{usuarioId}")
+    @Operation(summary = "Obtener notificaciones por usuario", description = "Obtiene todas las notificaciones asociadas a un usuario")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Operacion exitosa",
+            content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = NotificacionDTO.class))),
+        @ApiResponse(responseCode = "400", description = "Usuario invalido")
+    })
     public ResponseEntity<List<NotificacionDTO>> buscarPorUsuario(@PathVariable Long usuarioId) {
-        // TODO: Llamar a service.buscarPorUsuario(usuarioId).
-        // TODO: Retornar ResponseEntity.ok(resultado).
-        return ResponseEntity.ok(List.of());
+        return ResponseEntity.ok(service.buscarPorUsuario(usuarioId));
     }
 
     @GetMapping("/usuario/{usuarioId}/no-leidas")
+    @Operation(summary = "Obtener notificaciones no leidas", description = "Obtiene las notificaciones no leidas de un usuario")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Operacion exitosa",
+            content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = NotificacionDTO.class))),
+        @ApiResponse(responseCode = "400", description = "Usuario invalido")
+    })
+
     public ResponseEntity<List<NotificacionDTO>> buscarNoLeidasPorUsuario(@PathVariable Long usuarioId) {
-        // TODO: Llamar a service.buscarNoLeidasPorUsuario(usuarioId).
-        // TODO: Retornar ResponseEntity.ok(resultado).
-        return ResponseEntity.ok(List.of());
+        return ResponseEntity.ok(service.buscarNoLeidasPorUsuario(usuarioId));
     }
 
+
     @GetMapping("/usuario/{usuarioId}/total-no-leidas")
+    @Operation(summary = "Contar notificaciones no leidas", description = "Obtiene el total de notificaciones no leidas de un usuario")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Operacion exitosa"),
+        @ApiResponse(responseCode = "400", description = "Usuario invalido")
+    })
     public ResponseEntity<Map<String, Long>> totalNoLeidas(@PathVariable Long usuarioId) {
-        // TODO: Llamar a service.totalNoLeidasPorUsuario(usuarioId).
-        // TODO: Crear un Map con la clave totalNoLeidas.
-        // TODO: Retornar ResponseEntity.ok(map).
-        return ResponseEntity.ok(Map.of("totalNoLeidas", 0L));
+        return ResponseEntity.ok(Map.of("totalNoLeidas", service.totalNoLeidasPorUsuario(usuarioId)));
     }
 
     @GetMapping("/tipo/{tipo}")
+    @Operation(summary = "Obtener notificaciones por tipo", description = "Obtiene notificaciones filtradas por tipo: RESERVA, PAGO, MANTENIMIENTO, TORNEO, PROMOCION o SISTEMA")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Operacion exitosa",
+            content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = NotificacionDTO.class))),
+        @ApiResponse(responseCode = "400", description = "Tipo invalido")
+    })
     public ResponseEntity<List<NotificacionDTO>> buscarPorTipo(@PathVariable String tipo) {
-        // TODO: Llamar a service.buscarPorTipo(tipo).
-        // TODO: Retornar ResponseEntity.ok(resultado).
-        return ResponseEntity.ok(List.of());
+        return ResponseEntity.ok(service.buscarPorTipo(tipo));
+    }
+
+    @GetMapping("/no-leidas")
+    @Operation(summary = "Recupera todas las notificaciones no leidas", description = "Obtiene el total de notificaciones no leidas, independiente del usuario")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Operacion exitosa", content = @Content(mediaType = "application/json", schema = @Schema(implementation = NotificacionDTO.class)))
+    })
+    public ResponseEntity<List<NotificacionDTO>> buscarNoLeidas(){
+        return ResponseEntity.ok(service.obtenerNoLeidas());
     }
 
     @PostMapping
+    @Operation(summary = "Crear una nueva notificacion", description = "Crea una notificacion para un usuario. El tipo y canal se guardan en mayusculas automaticamente")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Notificacion creada exitosamente",
+            content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = NotificacionDTO.class))),
+        @ApiResponse(responseCode = "400", description = "Datos invalidos"),
+        @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
     public ResponseEntity<NotificacionDTO> crear(@Valid @RequestBody NotificacionDTO dto) {
-        // TODO: Llamar a service.crear(dto).
-        // TODO: Retornar ResponseEntity.status(HttpStatus.CREATED).body(resultado).
-        return ResponseEntity.status(HttpStatus.CREATED).body(null);
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.crear(dto));
     }
 
     @PutMapping("/{id}/leer")
+    @Operation(summary = "Marcar notificacion como leida", description = "Marca una notificacion especifica como leida")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Notificacion marcada como leida",
+            content = @Content(mediaType = "application/json",
+                schema = @Schema(implementation = NotificacionDTO.class))),
+        @ApiResponse(responseCode = "400", description = "La notificacion ya fue leida"),
+        @ApiResponse(responseCode = "404", description = "Notificacion no encontrada")
+    })
     public ResponseEntity<NotificacionDTO> marcarComoLeida(@PathVariable Long id) {
-        // TODO: Llamar a service.marcarComoLeida(id).
-        // TODO: Retornar ResponseEntity.ok(resultado).
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(service.marcarComoLeida(id));
     }
 
     @PutMapping("/usuario/{usuarioId}/leer-todas")
+    @Operation(summary = "Marcar todas como leidas", description = "Marca todas las notificaciones no leidas de un usuario como leidas")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Notificaciones marcadas como leidas"),
+        @ApiResponse(responseCode = "400", description = "Usuario invalido")
+    })
     public ResponseEntity<String> marcarTodasComoLeidas(@PathVariable Long usuarioId) {
-        // TODO: Llamar a service.marcarTodasComoLeidas(usuarioId).
-        // TODO: Retornar un mensaje de confirmacion cuando todas las notificaciones queden marcadas como leidas.
-        return ResponseEntity.ok("TODO: marcar todas las notificaciones como leidas");
+        service.marcarTodasComoLeidas(usuarioId);
+        return ResponseEntity.ok("Notificaciones marcadas como leidas");
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Eliminar una notificacion", description = "Elimina una notificacion por su ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Notificacion eliminada exitosamente"),
+        @ApiResponse(responseCode = "400", description = "No se puede eliminar una notificacion no leida"),
+        @ApiResponse(responseCode = "404", description = "Notificacion no encontrada")
+    })
     public ResponseEntity<String> eliminar(@PathVariable Long id) {
-        // TODO: Llamar a service.eliminar(id).
-        // TODO: Retornar un mensaje de confirmacion cuando la notificacion sea eliminada.
-        return ResponseEntity.ok("TODO: eliminar notificacion");
+        service.eliminar(id);
+        return ResponseEntity.ok("Notificacion eliminada correctamente");
     }
 }

@@ -35,8 +35,8 @@ public class Notificacion {
     private String tipo;
     @Column(name = "canal", nullable = false)
     private String canal;
-    @Column(name = "leida",nullable = false)
+    @Column(name = "leida")
     private Boolean leida;
-    @Column(name = "fecha_creacion", nullable = false)
+    @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion;
 }

@@ -33,9 +33,7 @@ public class NotificacionDTO {
 
     @NotBlank(message = "El canal es obligatorio")
     private String canal;
-    @NotNull(message = "El estado es obligatorio")
     private Boolean leida;
-    @NotNull(message = "La fecha de creacion es obligatoria")
     private LocalDateTime fechaCreacion;
 
     public Notificacion toModel() {

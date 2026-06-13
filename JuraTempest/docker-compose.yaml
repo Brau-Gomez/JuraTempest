@@ -1,0 +1,122 @@
+x-common-env: &common-env
+  EUREKA_HOST: eureka-server
+  SPRING_DATASOURCE_USERNAME: root
+  SPRING_DATASOURCE_PASSWORD: admin123
+
+services:
+
+  mysql:
+    image: mysql:8.4
+    container_name: juratempest-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: admin123
+    volumes:
+      - juratempest_mysql_data:/var/lib/mysql
+
+  eureka-server:
+    build: ./eureka_server
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+
+  ms-usuarios-auth:
+    build: ./ms_usuarios_auth
+    container_name: ms-usuarios-auth
+    ports:
+      - "9091:9091"
+    environment:
+      <<: *common-env
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/usuarios_auth_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
+      APP_JWT_SECRET: JuraTempestArcadeHub
+      APP_JWT_EXPIRATION_MINUTES: 120
+    depends_on:
+      - mysql
+      - eureka-server
+
+  ms-maquinas:
+    build: ./ms_maquinas
+    container_name: ms-maquinas
+    ports:
+      - "9092:9092"
+    environment:
+      <<: *common-env
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/maquinas_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
+    depends_on:
+      - mysql
+      - eureka-server
+
+  ms-horarios:
+    build: ./ms-horarios
+    container_name: ms-horarios
+    ports:
+      - "9093:9093"
+    environment:
+      <<: *common-env
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/horarios_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
+    depends_on:
+      - mysql
+      - eureka-server
+
+  ms-reservas:
+    build: ./ms_reservas
+    container_name: ms-reservas
+    ports:
+      - "9094:9094"
+    environment:
+      <<: *common-env
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/reservas_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
+    depends_on:
+      - mysql
+      - eureka-server
+      - ms-usuarios-auth
+      - ms-maquinas
+      - ms-horarios
+
+  ms-fidelizacion:
+    build: ./ms_fidelizacion
+    container_name: ms-fidelizacion
+    ports:
+      - "9095:9095"
+    environment:
+      <<: *common-env
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/fidelizacion_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
+    depends_on:
+      - mysql
+      - eureka-server
+      - ms-usuarios-auth
+
+  ms-notificaciones:
+    build: ./ms_notificaciones
+    container_name: ms-notificaciones
+    ports:
+      - "9096:9096"
+    environment:
+      <<: *common-env
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/notificaciones_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
+    depends_on:
+      - mysql
+      - eureka-server
+      - ms-usuarios-auth
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "9090:9090"
+    environment:
+      EUREKA_HOST: eureka-server
+      JWT_SECRET: JuraTempestArcadeHub
+    depends_on:
+      - eureka-server
+      - ms-usuarios-auth
+      - ms-maquinas
+      - ms-horarios
+      - ms-reservas
+      - ms-fidelizacion
+      - ms-notificaciones
+
+volumes:
+  juratempest_mysql_data:

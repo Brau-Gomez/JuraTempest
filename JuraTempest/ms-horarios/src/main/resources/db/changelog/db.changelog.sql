@@ -9,7 +9,9 @@ CREATE TABLE bloque_horario (
     disponible BOOLEAN NOT NULL,
     estado VARCHAR(30) NOT NULL CHECK (estado in ('DISPONIBLE','CERRADO','MANTENCION','BLOQUEADO')),
     capacidad_maquina INT NOT NULL,
-    cupos_disponibles INT NOT NULL CHECK (cupos_disponibles >= 0 and cupos_disponibles <= capacidad_maquina)
+    cupos_disponibles INT NOT NULL,
+    CHECK (cupos_disponibles >= 0),
+    CHECK (cupos_disponibles <= capacidad_maquina)
 );
 
 

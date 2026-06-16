@@ -30,10 +30,9 @@ import jakarta.validation.Valid;
 public class NotificacionControllerV2 {
     @Autowired
     private NotificacionService service;
-
-    @Autowired 
     private NotificacionModelAssembler assembler;
 
+    
     @GetMapping(produces = MediaTypes.HAL_JSON_VALUE)
     public CollectionModel<EntityModel<NotificacionDTO>> listar(){
         List<EntityModel<NotificacionDTO>> notificaciones = service.listar().stream().map(assembler::toModel).toList();

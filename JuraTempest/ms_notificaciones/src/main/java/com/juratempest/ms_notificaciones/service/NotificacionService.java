@@ -25,75 +25,106 @@ public class NotificacionService {
         this.repository = repository;
         this.usuarioClient = usuarioClient;
     }
+
+
     //LISTAR
     public List<NotificacionDTO> listar() {
-        return repository.findAll().stream().map(NotificacionDTO::fromModel).toList();
+        log.info("Listando todas las notificaciones");
+
+        List<NotificacionDTO> notificaciones = repository.findAll()
+            .stream()
+            .map(NotificacionDTO::fromModel)
+            .toList();
+        log.info("Total de notificaciones encontradas={}", notificaciones.size());
+        
+        return notificaciones;
     }
+
+
     //BUSCAR POR ID
     public NotificacionDTO buscarPorId(Long id) {
-        return NotificacionDTO.fromModel(obtenerNotificacion(id));
+        log.info("Buscando notificaciones id={}", id);
+        Notificacion notificacion = obtenerNotificacion(id);
+        log.info("Notificacion encontrada id={}", id);
+
+        return NotificacionDTO.fromModel(notificacion);
+
     }
+
+
     //BUSCAR POR USUARIO
     public List<NotificacionDTO> buscarPorUsuario(Long usuarioId) {
-        if (usuarioId == null){
-            log.warn("Usuario vacio, ingrese nuevamente");
-            throw new BadRequestException("El usuario no puede estar vacio, Ingrese su nombre de usuario nuevamente");
-        }
-        else if (!usuarioClient.usuarioExiste(usuarioId)){
-            log.warn("Usuario inexistente");
-            throw new BadRequestException("Usuario no existe");
+        log.info("Buscando notificaciones por usuarioId={}", usuarioId);
+
+        validarUsuario(usuarioId);
+
+        List<NotificacionDTO> notificaciones = repository.findByUsuarioId(usuarioId)
+            .stream()
+            .map(NotificacionDTO::fromModel)
+            .toList();
         
-        }
-        return repository.findByUsuarioId(usuarioId).stream().map(NotificacionDTO::fromModel).toList();
-        
+
+            log.info("Total de notificaciones usuarioId={} total={}", usuarioId, notificaciones.size());
+        return notificaciones;
     }
+
+
     //BUSCAR NO LEIDAS POR USUARIO
     public List<NotificacionDTO> buscarNoLeidasPorUsuario(Long usuarioId) {
-        if (usuarioId == null){
-            log.warn("Usuario vacio, no se encontraron notificaciones");
-            throw new BadRequestException("Usuario vacio, favor ingresar usuario para consultar notifiaciones");
-        }
-        else if (!usuarioClient.usuarioExiste(usuarioId)){
-            log.warn("Usuario inexistente");
-            throw new BadRequestException("Usuario no existe");
-        
-        }
-        return repository.findByUsuarioIdAndLeidaFalse(usuarioId).stream().map(NotificacionDTO::fromModel).toList();
+        log.info("Buscando notificaciones no leidas usuarioId={}", usuarioId);
+
+        validarUsuario(usuarioId);
+
+
+        List<NotificacionDTO> notificaciones = repository.findByUsuarioIdAndLeidaFalse(usuarioId)
+        .stream().map(NotificacionDTO::fromModel).toList();
+
+        log.info("Total de notificaciones no leidas usuarioId={} total={}", usuarioId, notificaciones.size());
+        return notificaciones;
     }
+
     //BUSCAR POR TIPO
     public List<NotificacionDTO> buscarPorTipo(String tipo) {
-        if (tipo == null){
-            log.warn("Tipo vacio, no se encontraron notificaciones");
-            throw new BadRequestException("Tipo vacio, favor ingresar tipo para consultar notifiaciones");
-        }
-        tipo = tipo.trim().toUpperCase();
-        if(!List.of("RESERVA", "PAGO", "MANTENIMIENTO", "TORNEO","PROMOCION", "SISTEMA").contains(tipo)){
-            throw new BadRequestException("Tipo no valido, Favor intentar con uno de los siguientes: RESERVA, PAGO, MANTENIMIENTO, TORNEO, PROMOCION, SISTEMA");
-        }
-        return repository.findByTipo(tipo).stream().map(NotificacionDTO::fromModel).toList();
+        log.info("Buscando notificacion por tipo={}", tipo);
+        tipo = normalizarTipo(tipo);
+
+        List<NotificacionDTO> notificaciones = repository.findByTipo(tipo)
+            .stream()
+            .map(NotificacionDTO::fromModel)
+            .toList();
+        
+            log.info("Total de notificaciones tipo={} total={}", tipo, notificaciones.size());
+
+            return notificaciones;
     }
+
+
+    
     //BUSCAR POR CANAL
     public Long totalNoLeidasPorUsuario(Long usuarioId) {
-        if (usuarioId == null){
-            log.warn("Usuario vacio, no se encontraron notificaciones");
-            throw new BadRequestException("Usuario no puede estar vacio, Ingrese el usuario para consultar las notificaciones");
-        }       
-        else if (!usuarioClient.usuarioExiste(usuarioId)){
-            log.warn("Usuario inexistente");
-            throw new BadRequestException("Usuario no existe");
+        log.info("Calculando total de notificaciones no leidas usuarioId={}", usuarioId);
+
+        validarUsuario(usuarioId);
+
+        Long total = repository.countByUsuarioIdAndLeidaFalse(usuarioId);
         
-        }
-        return repository.countByUsuarioIdAndLeidaFalse(usuarioId);
+        log.info("Total de notificaciones no leidas usuarioId={} total={}", usuarioId, total);
+        return total;
     }
+
+
     //CREAR
     public NotificacionDTO crear(NotificacionDTO dto) {
-        if (dto == null || dto.getTipo() == null || dto.getCanal() == null){
-            throw new BadRequestException("Los campos tipo y canal son obligatorios");
+        log.info("Creando notificacion usuarioId={}", dto!= null ? dto.getUsuarioId() : null);
+        
+        if(dto == null){
+            log.warn("Intento de crear notificacion con cuerpo vacio");
+            throw new BadRequestException("El cuerpo de la notificacion es obligatorio");
+
         }
 
-        dto.setTipo(dto.getTipo().trim().toUpperCase());
-        dto.setCanal(dto.getCanal().trim().toUpperCase());
-
+        dto.setCanal(normalizarCanal(dto.getCanal()));
+        dto.setTipo(normalizarTipo(dto.getTipo()));
         validarDatos(dto);
 
         dto.setLeida(false);
@@ -104,97 +135,170 @@ public class NotificacionService {
 
         return NotificacionDTO.fromModel(notificacion);
     }
+
+
     //ACTUALIZAR
     public NotificacionDTO marcarComoLeida(Long id) {
-
-        Notificacion noLeida = obtenerNotificacion(id);
-        if (noLeida.getLeida()){
-            throw new BadRequestException("Notificacion ya marcada como leida");
+        log.info("Marcando notificacion como leida id={}", id);
+        Notificacion notificacion = obtenerNotificacion(id);
+        if ( Boolean.TRUE.equals(notificacion.getLeida())){
+            log.warn("Intento de leer una notificacion ya leida id={}", id);
+            throw new BadRequestException("No se puede leer una notificacion ya leida");
         }
-        noLeida.setLeida(true);
-        Notificacion leida = repository.save(noLeida);
+
+        notificacion.setLeida(true);
+        Notificacion leida = repository.save(notificacion);
         log.info("Notificacion marcada como leida id={}", id);
+
         return NotificacionDTO.fromModel(leida);
 
     }
+
+
     //MARCAR TODAS COMO LEIDAS
+
     public void marcarTodasComoLeidas(Long usuarioId) {
-        if (usuarioId == null ){
-            throw new BadRequestException("EL usuario no puede estar vacio. Favor ingresar usuario");
-        }
-        else if (!usuarioClient.usuarioExiste(usuarioId)){
-            throw new ResourceNotFoundException("Usuario no existe");
-        }
-
+        log.info("Marcando todas las notificaciones como leidas usuarioId={}", usuarioId);
+        validarUsuario(usuarioId);
         List<Notificacion> notificaciones = repository.findByUsuarioIdAndLeidaFalse(usuarioId);
-        for (Notificacion notificacion : notificaciones){
-            notificacion.setLeida(true);
-        }
-
+        notificaciones.forEach(notificacion -> notificacion.setLeida(true));
         repository.saveAll(notificaciones);
-        log.info("Notificaciones marcadas como leidas usuarioId={}", usuarioId);
+        log.info("Notificacion marcadas como leidas usuarioId={} total={}", usuarioId, notificaciones.size());
     }
+
+
+
     //ELIMINAR
     public void eliminar(Long id) {
+        log.info("Eliminando notificacion id={}", id);
         Notificacion notificacion = obtenerNotificacion(id);
-        if (!notificacion.getLeida()){
+        
+        if (Boolean.TRUE.equals(notificacion.getLeida())){
+            log.warn("Intento de eliminar notificacion no leida id={}", id);
             throw new BadRequestException("No se puede eliminar una notificacion no leida");
         }
 
         repository.deleteById(id);
+
         log.info("Notificacion eliminada id={}", id);
-    }
+
+        }
+    
+
 
     //BUSCAR SOLO LAS NO LEIDAS
     public List<NotificacionDTO> obtenerNoLeidas(){
-        return repository.findByLeidaFalse().stream().map(NotificacionDTO::fromModel).toList();
+        log.info("Buscando todasd las notificaciones no leidas");
+
+        List<NotificacionDTO> notificaciones = repository.findByLeidaFalse()
+        .stream()
+        .map(NotificacionDTO::fromModel)
+        .toList();
+
+        log.info("Total de notificaciones no leidas={}", notificaciones.size());
+        return notificaciones;
     }
 
 
     //METODOS PRIVADOS
     //Confirma existensia de notificaciones y valida datos de notificacion.
     private Notificacion obtenerNotificacion(Long id) {
+        if (id == null){
+            log.warn("Busqueda de notificacion con id nulo");
+            throw new BadRequestException("Busqueda de notificacion con id nulo");
+        }
+
         return repository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Notificacion no encontrada con id " + id));
+        .orElseThrow(() -> {
+            log.warn("Notificacion no encontrada id={}", id);
+            return new ResourceNotFoundException("Notificacion no encontrada con id" + id);
+        });
     }
 
     private void validarDatos(NotificacionDTO dto) {
+        if (dto == null) {
+            log.warn("Notificacion vacia");
+            throw new BadRequestException("Los datos de la notificacion son obligatorios");
+        }
+    
+        if (dto.getUsuarioId() == null) {
+            log.warn("Notificacion sin usuario");
+            throw new BadRequestException("El usuario es obligatorio");
+        }
+    
+        if (dto.getTitulo() == null || dto.getTitulo().isBlank()) {
+            log.warn("Notificacion sin titulo usuarioId={}", dto.getUsuarioId());
+            throw new BadRequestException("El titulo es obligatorio");
+        }
+    
+        if (dto.getMensaje() == null || dto.getMensaje().isBlank()) {
+            log.warn("Notificacion sin mensaje usuarioId={}", dto.getUsuarioId());
+            throw new BadRequestException("El mensaje es obligatorio");
+        }
+    
+        validarUsuario(dto.getUsuarioId());
+        validarTipoPermitido(dto.getTipo());
+        validarCanalPermitido(dto.getCanal());
+    }
 
-        if (dto == null 
-            || dto.getUsuarioId() == null
-            || dto.getTipo() == null || dto.getTipo().isBlank()
-            || dto.getCanal() == null || dto.getCanal().isBlank()
-            || dto.getTitulo() == null || dto.getTitulo().isBlank()
-            || dto.getMensaje() == null || dto.getMensaje().isBlank()) {
-            throw new BadRequestException("Faltan datos. Favor revise los campos");
+    private void validarUsuario(Long usuarioId){
+        if (usuarioId == null){
+            log.warn("Usuario nulo");
+            throw new BadRequestException("El usuario es obligatorio");
         }
 
-        if (!usuarioClient.usuarioExiste(dto.getUsuarioId())){
-            throw new ResourceNotFoundException("USUARIO NO EXISTE");
+        if (!usuarioClient.usuarioExiste(usuarioId)){
+            log.warn("Usuario no existe usuarioId={}", usuarioId);
+            throw new BadRequestException("El usuario no existe");
+        }
+    }
+
+    private String normalizarTipo(String tipo){
+        if (tipo == null){
+            log.warn("Tipo nulo");
+            throw new BadRequestException("El tipo es obligatorio");
         }
 
-        List<String> tipos = List.of(
-            "RESERVA", 
-            "PAGO", 
-            "MANTENIMIENTO", 
-            "TORNEO", 
-            "PROMOCION", 
-            "SISTEMA"
+        return tipo.trim().toUpperCase();
+    }
+
+    private String normalizarCanal(String canal){
+        if (canal == null){
+            log.warn("Canal nulo");
+            throw new BadRequestException("El canal es obligatorio");
+        }
+
+        return canal.trim().toUpperCase();
+    }
+
+    private void validarTipoPermitido(String tipo) {
+        List<String> tiposPermitidos = List.of(
+                "RESERVA",
+                "PAGO",
+                "MANTENIMIENTO",
+                "TORNEO",
+                "PROMOCION",
+                "SISTEMA"
         );
-        if (!tipos.contains(dto.getTipo())){
-            throw new BadRequestException("Tipo no valido, Ingrese uno de los siguientes: RESERVA, PAGO, MANTENIMIENTO, TORNEO, PROMOCION, SISTEMA");
+    
+        if (!tiposPermitidos.contains(tipo)) {
+            log.warn("Tipo de notificacion invalido tipo={}", tipo);
+            throw new BadRequestException("Tipo no valido. Ingrese uno de los siguientes: RESERVA, PAGO, MANTENIMIENTO, TORNEO, PROMOCION, SISTEMA");
         }
-        
-        List<String> tipos_canal = List.of(
-            "SISTEMA",
-            "EMAIL", 
-            "SMS_SIMULADO", 
-            "WHATSAPP_SIMULADO"
-        );
+    }
 
-        if (!tipos_canal.contains(dto.getCanal())){
+    private void validarCanalPermitido(String canal) {
+        List<String> canalesPermitidos = List.of(
+                "SISTEMA",
+                "EMAIL",
+                "SMS_SIMULADO",
+                "WHATSAPP_SIMULADO"
+        );
+    
+        if (!canalesPermitidos.contains(canal)) {
+            log.warn("Canal de notificacion invalido canal={}", canal);
             throw new BadRequestException("Canal no valido. Ingrese uno de los siguientes: SISTEMA, EMAIL, SMS_SIMULADO, WHATSAPP_SIMULADO");
         }
-
     }
+
 }

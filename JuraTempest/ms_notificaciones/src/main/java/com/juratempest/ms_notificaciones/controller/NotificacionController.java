@@ -36,6 +36,7 @@ public class NotificacionController {
         this.service = service;
     }
 
+    //LISTAR NOTIFICACIONES
     @GetMapping
     @Operation(summary = "Listar todas las notificaciones", description = "Retorna una lista de todas las notificaciones")
     @ApiResponses({
@@ -45,7 +46,7 @@ public class NotificacionController {
         return ResponseEntity.ok(service.listar());
     }
 
-
+    //OBTENER NOTIFICACION POR ID
     @GetMapping("/{id}")
     @Operation(summary = "Obtener una notificacion por ID", description = "Obtiene una notificacion especifica usando su ID")
     @ApiResponses(value = {
@@ -59,6 +60,8 @@ public class NotificacionController {
         return ResponseEntity.ok(service.buscarPorId(id));
     }
 
+
+    //OBTENER NOTIFICACION POR ID DE USUARIO
     @GetMapping("/usuario/{usuarioId}")
     @Operation(summary = "Obtener notificaciones por usuario", description = "Obtiene todas las notificaciones asociadas a un usuario")
     @ApiResponses(value = {
@@ -71,42 +74,42 @@ public class NotificacionController {
         return ResponseEntity.ok(service.buscarPorUsuario(usuarioId));
     }
 
+    //OBTENER NOTIFICACIONES NO LEIDAS POR ID DE USUARIO
     @GetMapping("/usuario/{usuarioId}/no-leidas")
     @Operation(summary = "Obtener notificaciones no leidas", description = "Obtiene las notificaciones no leidas de un usuario")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Operacion exitosa",
             content = @Content(mediaType = "application/json",
-                schema = @Schema(implementation = NotificacionDTO.class))),
-        @ApiResponse(responseCode = "400", description = "Usuario invalido")
+                schema = @Schema(implementation = NotificacionDTO.class)))
     })
-
     public ResponseEntity<List<NotificacionDTO>> buscarNoLeidasPorUsuario(@PathVariable Long usuarioId) {
         return ResponseEntity.ok(service.buscarNoLeidasPorUsuario(usuarioId));
     }
 
-
+    //OBTENER TOTAL DE NOTIFICACIONES NO LEIDAS POR ID DE USUARIO
     @GetMapping("/usuario/{usuarioId}/total-no-leidas")
     @Operation(summary = "Contar notificaciones no leidas", description = "Obtiene el total de notificaciones no leidas de un usuario")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Operacion exitosa"),
-        @ApiResponse(responseCode = "400", description = "Usuario invalido")
+        @ApiResponse(responseCode = "200", description = "Operacion exitosa")
     })
     public ResponseEntity<Map<String, Long>> totalNoLeidas(@PathVariable Long usuarioId) {
         return ResponseEntity.ok(Map.of("totalNoLeidas", service.totalNoLeidasPorUsuario(usuarioId)));
     }
 
+    //OBTENER NOTIFICACION POR TIPO DE NOTIFICACION
     @GetMapping("/tipo/{tipo}")
     @Operation(summary = "Obtener notificaciones por tipo", description = "Obtiene notificaciones filtradas por tipo: RESERVA, PAGO, MANTENIMIENTO, TORNEO, PROMOCION o SISTEMA")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Operacion exitosa",
             content = @Content(mediaType = "application/json",
-                schema = @Schema(implementation = NotificacionDTO.class))),
-        @ApiResponse(responseCode = "400", description = "Tipo invalido")
+                schema = @Schema(implementation = NotificacionDTO.class)))
     })
     public ResponseEntity<List<NotificacionDTO>> buscarPorTipo(@PathVariable String tipo) {
         return ResponseEntity.ok(service.buscarPorTipo(tipo));
     }
 
+
+    //OBTENER EL TOTAL NOTIFICACIONES NO LEIDAS
     @GetMapping("/no-leidas")
     @Operation(summary = "Recupera todas las notificaciones no leidas", description = "Obtiene el total de notificaciones no leidas, independiente del usuario")
     @ApiResponses(value = {
@@ -116,6 +119,8 @@ public class NotificacionController {
         return ResponseEntity.ok(service.obtenerNoLeidas());
     }
 
+    //POSTMAPPING
+    //CREAR NOTIFICACION
     @PostMapping
     @Operation(summary = "Crear una nueva notificacion", description = "Crea una notificacion para un usuario. El tipo y canal se guardan en mayusculas automaticamente")
     @ApiResponses(value = {

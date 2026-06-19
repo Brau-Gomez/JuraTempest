@@ -59,7 +59,6 @@ public class NotificacionDTO {
             .mensaje(notificacion.getMensaje())
             .canal(notificacion.getCanal())
             .leida(notificacion.getLeida())
-            .fechaCreacion(notificacion.getFechaCreacion())
             .build();
     }
 }

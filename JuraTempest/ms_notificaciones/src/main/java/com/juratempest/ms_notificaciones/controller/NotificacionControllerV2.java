@@ -30,6 +30,7 @@ import jakarta.validation.Valid;
 public class NotificacionControllerV2 {
     @Autowired
     private NotificacionService service;
+    @Autowired
     private NotificacionModelAssembler assembler;
 
     

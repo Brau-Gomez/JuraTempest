@@ -87,6 +87,8 @@ public class NotificacionService {
     public List<NotificacionDTO> buscarPorTipo(String tipo) {
         log.info("Buscando notificacion por tipo={}", tipo);
         tipo = normalizarTipo(tipo);
+        validarTipoPermitido(tipo);
+
 
         List<NotificacionDTO> notificaciones = repository.findByTipo(tipo)
             .stream()
@@ -173,7 +175,7 @@ public class NotificacionService {
         log.info("Eliminando notificacion id={}", id);
         Notificacion notificacion = obtenerNotificacion(id);
         
-        if (Boolean.TRUE.equals(notificacion.getLeida())){
+        if (Boolean.FALSE.equals(notificacion.getLeida())){
             log.warn("Intento de eliminar notificacion no leida id={}", id);
             throw new BadRequestException("No se puede eliminar una notificacion no leida");
         }
@@ -235,10 +237,14 @@ public class NotificacionService {
             log.warn("Notificacion sin mensaje usuarioId={}", dto.getUsuarioId());
             throw new BadRequestException("El mensaje es obligatorio");
         }
-    
+        
+
         validarUsuario(dto.getUsuarioId());
-        validarTipoPermitido(dto.getTipo());
+        dto.setCanal(normalizarCanal(dto.getCanal()));
+        dto.setTipo(normalizarTipo(dto.getTipo()));
+
         validarCanalPermitido(dto.getCanal());
+        validarTipoPermitido(dto.getTipo());
     }
 
     private void validarUsuario(Long usuarioId){

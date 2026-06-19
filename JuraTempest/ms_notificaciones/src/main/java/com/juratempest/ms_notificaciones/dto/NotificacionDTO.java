@@ -34,6 +34,7 @@ public class NotificacionDTO {
     @NotBlank(message = "El canal es obligatorio")
     private String canal;
     private Boolean leida;
+
     private LocalDateTime fechaCreacion;
 
     public Notificacion toModel() {
@@ -59,6 +60,7 @@ public class NotificacionDTO {
             .mensaje(notificacion.getMensaje())
             .canal(notificacion.getCanal())
             .leida(notificacion.getLeida())
+            .fechaCreacion(notificacion.getFechaCreacion())
             .build();
     }
 }

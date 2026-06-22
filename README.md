@@ -1,17 +1,24 @@
 # JuraTempest
 
-## Descripcion del proyecto
+## Descripcion
 
-JuraTempest es una aplicacion construida con arquitectura de microservicios para administrar un centro arcade. El sistema permite gestionar usuarios, autenticacion, maquinas, bloques horarios, reservas y puntos de fidelizacion.
+JuraTempest es una aplicacion de microservicios para administrar un centro arcade. Permite gestionar usuarios, autenticacion JWT, maquinas, bloques horarios, reservas, fidelizacion, notificaciones, pagos, promociones, mantenimientos y torneos.
 
-El proyecto corresponde al proyecto semestral para Desarrollo FullStack 1. Su objetivo es demostrar dominio de Spring Boot, persistencia con JPA + Hibernate, migraciones con Liquibase, patron CSR, validaciones, manejo centralizado de errores, respuestas REST, comunicacion entre microservicios, API Gateway, Eureka Server.
+El trabajo corresponde al proyecto semestral de Desarrollo FullStack 1. La solucion aplica Spring Boot, JPA/Hibernate, migraciones con Liquibase y Flyway, validacion con DTOs, manejo centralizado de errores, comunicacion entre microservicios, API Gateway y Eureka Server.
 
-## Estructura del proyecto
+## Equipo
 
-Este repositorio esta organizado de la siguiente forma:
+| Integrante | Rol dentro del proyecto | Aporte tecnico |
+|---|---|---|
+| Braulio Gomez | Developer | Autenticacion JWT, usuarios, gateway, horarios, pagos, notificaciones, promociones|
+| Lukas Meza | Developer | Maquinas, reservas, fidelizacion, mantenimiento, eventos_torneos|
 
-- En la **raiz del repositorio** (`/`) se encuentra este `README.md`.
-- El **codigo fuente del proyecto** esta dentro de la carpeta `JuraTempest/`.
+Docente: Carlos Alberto Abarzua Castro
+Asignatura y seccion: Desarrollo FullStack 1 DSY1103 - 010D
+
+## Estructura del repositorio
+
+El codigo fuente vive dentro de `JuraTempest/`. La raiz mantiene este README y archivos de apoyo.
 
 ```text
 /
@@ -19,158 +26,219 @@ Este repositorio esta organizado de la siguiente forma:
 └─ JuraTempest/
    ├─ api-gateway/
    ├─ eureka_server/
-   ├─ ms_usuarios_auth/
+   ├─ ms_auth/
+   ├─ ms_usuarios/
    ├─ ms_maquinas/
    ├─ ms-horarios/
    ├─ ms_reservas/
-   └─ ms_fidelizacion/
+   ├─ ms_fidelizacion/
+   ├─ ms_notificaciones/
+   ├─ ms_pagos/
+   ├─ ms_promociones/
+   ├─ ms_mantenimiento/
+   ├─ ms_eventos_torneos/
+   ├─ docker-compose.yaml
+   └─ scripts/
 ```
 
-```
-Integrantes
-- Braulio Gomez
-- Lukas Meza
+Nota: el servicio antiguo `ms_usuarios_auth` fue separado en dos servicios actuales: `ms_auth` y `ms_usuarios`.
 
-Docente
-Carlos Alberto Abarzua Castro
-
-Asignatura & Seccion
-Desarrollo FullStack 1 DSY1103 - 010D
-```
-| Integrante | Rol dentro del proyecto | Aporte tecnico |
-|---|---|---|
-| Braulio Gomez | Developer | autenticacion JWT, usuarios, gateway, pruebas Postman, horarios |
-| Lukas Meza | Developer | maquinas, reservas, fidelizacion |
-
-## Contexto funcional
-
-El dominio elegido es un arcade o centro de entretenimiento. Un usuario puede registrarse, iniciar sesion, consultar servicios disponibles y realizar reservas para usar maquinas arcade en bloques horarios definidos. El sistema tambien permite asignar puntos de fidelizacion asociados a usuarios existentes.
-
-Flujo principal del negocio:
-
-1. Se registra un usuario en `ms_usuarios_auth`.
-2. El usuario inicia sesion y obtiene un token JWT.
-3. Se crean maquinas disponibles en `ms_maquinas`.
-4. Se crean bloques horarios en `ms-horarios`.
-5. Se crea una reserva en `ms_reservas`.
-6. `ms_reservas` valida remotamente que el usuario exista, que la maquina este activa y que el bloque horario exista.
-7. Se registran puntos en `ms_fidelizacion`.
-8. `ms_fidelizacion` valida remotamente que el usuario exista antes de guardar puntos.
-
-## Arquitectura general
-
-El sistema esta compuesto por 5 microservicios de negocio, un servidor Eureka y un API Gateway.
+## Arquitectura actual
 
 | Componente | Puerto | Responsabilidad |
 |---|---:|---|
+| `api-gateway` | 9090 | Entrada unica a las APIs, rutas y validacion JWT |
 | `eureka_server` | 8761 | Registro y descubrimiento de servicios |
-| `api-gateway` | 9090 | Punto unico de entrada a las APIs |
-| `ms_usuarios_auth` | 9091 | Usuarios, roles, login, validacion de token y JWT |
+| `ms_usuarios` | 9091 | Usuarios, perfiles, roles y consultas internas |
 | `ms_maquinas` | 9092 | Administracion de maquinas arcade |
-| `ms-horarios` | 9093 | Administracion de bloques horarios |
+| `ms-horarios` | 9093 | Bloques horarios, cupos y disponibilidad |
 | `ms_reservas` | 9094 | Reservas y validaciones remotas |
 | `ms_fidelizacion` | 9095 | Puntos de fidelizacion por usuario |
+| `ms_notificaciones` | 9096 | Notificaciones por usuario, tipo y lectura |
+| `ms_pagos` | 9097 | Pagos de reservas, calculos, estados y notificaciones |
+| `ms_promociones` | 9098 | Promociones, descuentos y validacion de codigos |
+| `ms_mantenimiento` | 9099 | Mantenimientos preventivos/correctivos de maquinas |
+| `ms_eventos_torneos` | 9100 | Torneos, inscripciones, ganadores y puntos |
+| `ms_auth` | 9101 | Login, registro, validacion y emision de JWT |
 
-### Rutas expuestas por API Gateway
+## Rutas por API Gateway
 
-Todas las pruebas se pueden realizar desde:
+Todas las pruebas externas se realizan desde:
 
 ```text
 http://localhost:9090
 ```
 
-| Ruta | Microservicio destino |
+| Ruta | Servicio destino |
 |---|---|
-| `/auth/**` | `ms_usuarios_auth` |
-| `/users/**` | `ms_usuarios_auth` |
-| `/maquinas/**` | `ms_maquinas` |
+| `/auth/**` | `ms-auth` |
+| `/users/**` | `ms-usuarios` |
+| `/maquinas/**` | `ms-maquinas` |
 | `/horarios/**` | `ms-horarios` |
-| `/reservas/**` | `ms_reservas` |
-| `/fidelizacion/**` | `ms_fidelizacion` |
+| `/reservas/**` | `ms-reservas` |
+| `/fidelizacion/**` | `ms-fidelizacion` |
+| `/notificaciones/**` | `ms-notificaciones` |
+| `/pagos/**` | `ms-pagos` |
+| `/promociones/**` | `ms-promociones` |
+| `/mantenimientos/**` | `ms-mantenimiento` |
+| `/torneos/**` | `ms-eventos-torneos` |
 
-## Tecnologias utilizadas
+Rutas publicas del gateway: `OPTIONS`, `/auth/login`, `/auth/register`, `/auth/validate`, `/swagger-ui/**` y `/v3/api-docs/**`. El resto requiere `Authorization: Bearer <token>`.
+
+Swagger UI de cada microservicio esta configurado directamente en `/doc/swagger-ui.html`. El gateway no enruta `/doc/**`.
+
+## Tecnologias
 
 - Java 17
-- Spring Boot
-- Spring Web
-- Spring WebFlux / WebClient
+- Spring Boot 4.0.6
+- Spring Cloud 2025.1.1
 - Spring Cloud Gateway
 - Spring Cloud Netflix Eureka
-- Spring Data JPA
-- Hibernate
-- MySQL
-- Apache
-- Xampp
-- Liquibase
+- Spring Web MVC y WebFlux/WebClient
+- Spring Data JPA e Hibernate
+- Spring Security y JWT
+- MySQL 8.4 en Docker Compose
+- Liquibase y Flyway
 - Bean Validation
-- Spring Security
-- JWT
+- HATEOAS en endpoints `/v2`
 - Lombok
-- Maven
-- Postman
-- Git y GitHub
+- Maven Wrapper por servicio
+- Docker y Docker Compose
 
-## Bases de datos
+## Bases de datos y migraciones
 
-Cada microservicio de negocio trabaja con su propia base de datos. Esto respeta la independencia de datos esperada en una arquitectura de microservicios.
+Cada microservicio mantiene su propia base de datos.
 
-| Microservicio | Base de datos | Migraciones |
+| Servicio | Base de datos | Migraciones / esquema |
 |---|---|---|
-| `ms_usuarios_auth` | `usuarios_auth_db` | `src/main/resources/db/changelog/db.changelog.sql` |
-| `ms_maquinas` | `maquinas_db` | `src/main/resources/db/changelog/db.changelog.sql` |
-| `ms-horarios` | `horarios_db` | `src/main/resources/db/changelog/db.changelog.sql` |
-| `ms_reservas` | `reservas_db` | `src/main/resources/db/changelog/db.changelog.sql` |
-| `ms_fidelizacion` | `fidelizacion_db` | `src/main/resources/db/changelog/db.changelog.sql` |
+| `ms_usuarios` | `usuarios_db` | Liquibase `src/main/resources/db/changelog/db.changelog.sql` |
+| `ms_auth` | `auth_db` | Liquibase `src/main/resources/db/changelog/db.changelog.sql` |
+| `ms_maquinas` | `maquinas_db` | Liquibase `src/main/resources/db/changelog/db.changelog.sql` |
+| `ms-horarios` | `horarios_db` | Liquibase `src/main/resources/db/changelog/db.changelog.sql` |
+| `ms_reservas` | `reservas_db` | Liquibase `src/main/resources/db/changelog/db.changelog.sql` |
+| `ms_fidelizacion` | `fidelizacion_db` | Liquibase `src/main/resources/db/changelog/db.changelog.sql` |
+| `ms_notificaciones` | `notificaciones_db` | `ddl-auto=create-drop`, en perfil `dev` usa `update` por defecto |
+| `ms_pagos` | `pagos_db` | `ddl-auto=create-drop` |
+| `ms_promociones` | `promociones_db` | `ddl-auto=create-drop` |
+| `ms_mantenimiento` | `mantenimiento_db` | Flyway `src/main/resources/db/migration/V...sql` |
+| `ms_eventos_torneos` | `eventos_torneos_db` | Flyway `src/main/resources/db/migration/V...sql` |
 
+En ejecucion local los `application.properties` esperan MySQL en `localhost:3306` con usuario `root` y password vacia. En Docker Compose se usa password `admin123` y se sobreescriben las URLs de datasource.
 
-## Patron CSR aplicado
+## Comunicacion entre microservicios
 
-Cada microservicio mantiene separacion por responsabilidades:
+Los servicios usan `@LoadBalanced WebClient.Builder` y nombres de Eureka, por ejemplo `http://ms-usuarios/users/{id}/exists`, no puertos fijos.
 
-| Capa | Responsabilidad | Ejemplo en el proyecto |
-|---|---|---|
-| Controller | Recibir solicitudes REST, validar entrada y retornar `ResponseEntity` | `MaquinaController`, `ReservaController`, `AuthController` |
-| Service | Aplicar reglas de negocio y coordinar validaciones | `MaquinaService`, `ReservaService`, `UsuarioService` |
-| Repository | Acceder a datos mediante `JpaRepository` | `MaquinaRepository`, `ReservaRepository`, `UsuarioRepository` |
-| Model | Representar entidades persistentes con JPA | `Maquina`, `Reserva`, `Usuario`, `BloqueHorario` |
-| DTO | Transportar datos sin exponer directamente la entidad | `MaquinaDTO`, `ReservaDTO`, `RegistroRequestDTO` |
-| Exception | Centralizar errores y respuestas controladas | `GlobalExceptionHandler`, `ResourceNotFoundException`, `BadRequestException` |
+| Servicio | Dependencias principales |
+|---|---|
+| `ms_auth` | Crea y consulta perfiles en `ms-usuarios` |
+| `ms_reservas` | Valida usuario, maquina activa y bloque horario |
+| `ms_fidelizacion` | Valida usuario antes de registrar puntos |
+| `ms_notificaciones` | Valida usuario antes de crear notificaciones |
+| `ms_pagos` | Consulta reservas, maquinas, promociones, fidelizacion y notificaciones |
+| `ms_mantenimiento` | Valida maquinas/usuarios y crea notificaciones |
+| `ms_eventos_torneos` | Valida usuarios, maquinas, horarios, fidelizacion y notificaciones |
 
-Regla de limpieza usada: el controller no debe contener reglas de negocio. El controller solo recibe, delega al service y responde. Las decisiones como validar duplicados, verificar existencia remota o asignar fechas deben vivir en el service.
+## Requisitos previos
 
-## Funcionalidades implementadas
+- Java 17.
+- Docker y Docker Compose para levantar la pila completa.
+- Maven no es obligatorio si se usan los `mvnw` incluidos en cada servicio.
+- Puertos libres: `3306`, `8761`, `9090` a `9101`.
+- Postman, Insomnia o similar para probar endpoints REST.
 
-### `ms_usuarios_auth`
+## Comandos utiles
 
-Responsabilidades:
+No existe un `pom.xml` agregador en la raiz. Los comandos Maven se ejecutan desde la carpeta de cada servicio.
 
-- Registro de usuarios.
-- Login.
-- Generacion de token JWT.
-- Validacion de token.
-- CRUD administrativo de usuarios.
-- Busqueda por email, rol y usuarios frecuentes.
-- Relacion entre usuarios y roles.
+Compilar un servicio:
 
-Endpoints principales:
+```bash
+./mvnw -DskipTests compile
+```
 
-| Metodo | Endpoint | Descripcion |
-|---|---|---|
-| POST | `/auth/register` | Registrar usuario |
-| POST | `/auth/login` | Iniciar sesion |
-| GET | `/auth/validate` | Validar token JWT |
-| GET | `/users` | Listar usuarios |
-| GET | `/users/{id}` | Buscar usuario por id |
-| GET | `/users/{id}/exists` | Verificar existencia de usuario |
-| GET | `/users/email/{email}` | Buscar usuario por email |
-| GET | `/users/rol/{rol}` | Buscar usuarios por rol |
-| GET | `/users/frecuentes` | Listar usuarios frecuentes |
-| GET | `/users/total` | Contar usuarios |
-| POST | `/users` | Crear usuario desde administracion |
-| PUT | `/users/{id}` | Actualizar usuario |
-| DELETE | `/users/{id}` | Eliminar usuario |
+Ejecutar tests de un servicio:
 
-Ejemplo de registro:
+```bash
+./mvnw test
+```
+
+Ejecutar un test puntual:
+
+```bash
+./mvnw -Dtest=PagoServiceTest test
+```
+
+Ejecutar un servicio localmente:
+
+```bash
+./mvnw spring-boot:run
+```
+
+Construir todos los jars requeridos por Docker, desde `JuraTempest/`:
+
+```bash
+./scripts/build-targets.sh
+```
+
+Levantar la pila completa, desde `JuraTempest/`, despues de generar los jars:
+
+```bash
+docker compose up --build
+```
+
+Limpiar contenedores e imagenes del proyecto sin borrar volumenes de base de datos:
+
+```bash
+./scripts/clean-images.sh
+```
+
+## Orden de ejecucion local
+
+Si no se usa Docker Compose, iniciar en este orden:
+
+1. MySQL.
+2. `eureka_server`.
+3. `ms_usuarios`.
+4. `ms_auth`.
+5. Servicios de dominio: `ms_maquinas`, `ms-horarios`, `ms_reservas`, `ms_fidelizacion`, `ms_notificaciones`, `ms_promociones`, `ms_pagos`, `ms_mantenimiento`, `ms_eventos_torneos`.
+6. `api-gateway`.
+
+Validar Eureka en:
+
+```text
+http://localhost:8761
+```
+
+Validar gateway en:
+
+```text
+http://localhost:9090
+```
+
+## Flujo principal de pruebas
+
+1. Registrar usuario con `POST /auth/register`.
+2. Iniciar sesion con `POST /auth/login`.
+3. Copiar el JWT retornado y usarlo como `Authorization: Bearer <token>`.
+4. Crear maquinas con `POST /maquinas`.
+5. Crear bloques horarios con `POST /horarios`.
+6. Crear reservas con `POST /reservas`.
+7. Crear promociones con `POST /promociones` o validar codigos con `POST /promociones/validar`.
+8. Crear pagos con `POST /pagos` y aprobarlos con `PUT /pagos/{id}/aprobar`.
+9. Revisar puntos en `GET /fidelizacion/usuario/{usuarioId}` o `GET /fidelizacion/total/{usuarioId}`.
+10. Revisar notificaciones en `GET /notificaciones/usuario/{usuarioId}`.
+11. Probar mantenimientos con `POST /mantenimientos` y cambios de estado.
+12. Probar torneos con `POST /torneos`, apertura de inscripciones e inscripcion de usuarios.
+
+## Ejemplos rapidos
+
+Registro:
+
+```http
+POST http://localhost:9090/auth/register
+Content-Type: application/json
+```
 
 ```json
 {
@@ -183,7 +251,12 @@ Ejemplo de registro:
 }
 ```
 
-Ejemplo de login:
+Login:
+
+```http
+POST http://localhost:9090/auth/login
+Content-Type: application/json
+```
 
 ```json
 {
@@ -191,370 +264,210 @@ Ejemplo de login:
   "password": "123456"
 }
 ```
-Usuario Admin para pruebas:
 
-```
-email: admin@juratempest.cl
-pass: admin123 
-```
-
-
-
-### `ms_maquinas`
-
-Responsabilidades:
-
-- CRUD de maquinas arcade.
-- Busqueda por estado.
-- Busqueda por tipo.
-- Validacion de maquina activa para reservas.
-- Conteo total de maquinas.
-
-Endpoints principales:
-
-| Metodo | Endpoint | Descripcion |
-|---|---|---|
-| GET | `/maquinas` | Listar maquinas |
-| GET | `/maquinas/{id}` | Buscar maquina por id |
-| GET | `/maquinas/{id}/existe` | Verificar existencia |
-| GET | `/maquinas/activa/{id}` | Verificar si esta activa |
-| GET | `/maquinas/estado/{estado}` | Buscar por estado |
-| GET | `/maquinas/tipo/{tipo}` | Buscar por tipo |
-| GET | `/maquinas/total` | Contar maquinas |
-| POST | `/maquinas` | Crear maquina |
-| PUT | `/maquinas/{id}` | Actualizar maquina |
-| DELETE | `/maquinas/{id}` | Eliminar maquina |
-
-Ejemplo de creacion:
-
-```json
-{
-  "nombre": "Street Fighter II",
-  "tipo": "Lucha",
-  "ubicacion": "Zona A",
-  "estado": "ACTIVA",
-  "costoPorBloque": 1500,
-  "fechaInstalacion": "2026-05-13"
-}
-```
-
-### `ms-horarios`
-
-Responsabilidades:
-
-- CRUD de bloques horarios.
-- Busqueda por fecha.
-- Busqueda de bloques disponibles.
-- Busqueda por rango de fechas.
-- Validacion de existencia para reservas.
-- Control de capacidad y cupos disponibles.
-
-Endpoints principales:
-
-| Metodo | Endpoint | Descripcion |
-|---|---|---|
-| GET | `/horarios` | Listar bloques |
-| GET | `/horarios/{id}` | Buscar bloque por id |
-| GET | `/horarios/{id}/existe` | Verificar existencia |
-| GET | `/horarios/fecha/{fecha}` | Buscar por fecha |
-| GET | `/horarios/disponibles` | Listar disponibles |
-| GET | `/horarios/rango?inicio=YYYY-MM-DD&fin=YYYY-MM-DD` | Buscar por rango |
-| GET | `/horarios/total` | Contar bloques |
-| POST | `/horarios` | Crear bloque |
-| PUT | `/horarios/{id}` | Actualizar bloque |
-| DELETE | `/horarios/{id}` | Eliminar bloque |
-
-Ejemplo de creacion:
-
-```json
-{
-  "fecha": "2026-05-15",
-  "horaInicio": "10:00:00",
-  "horaFin": "11:00:00",
-  "disponible": true,
-  "estado": "DISPONIBLE",
-  "capacidadMaquina": 4,
-  "cuposDisponibles": 4
-}
-```
-
-### `ms_reservas`
-
-Responsabilidades:
-
-- CRUD de reservas.
-- Busqueda por usuario.
-- Busqueda por estado.
-- Validacion de usuario existente.
-- Validacion de maquina activa.
-- Validacion de bloque horario existente.
-- Prevencion de reservas duplicadas para la misma maquina y horario.
-
-Comunicacion remota mediante `WebClient`:
-
-| Validacion | Servicio consultado | Endpoint remoto |
-|---|---|---|
-| Usuario existe | `ms_usuarios_auth` | `GET /users/{id}/exists` |
-| Maquina activa | `ms_maquinas` | `GET /maquinas/activa/{id}` |
-| Bloque existe | `ms-horarios` | `GET /horarios/{id}/existe` |
-
-Endpoints principales:
-
-| Metodo | Endpoint | Descripcion |
-|---|---|---|
-| GET | `/reservas` | Listar reservas |
-| GET | `/reservas/{id}` | Buscar reserva por id |
-| GET | `/reservas/usuario/{usuarioId}` | Buscar reservas por usuario |
-| GET | `/reservas/estado/{estado}` | Buscar por estado |
-| GET | `/reservas/total` | Contar reservas |
-| POST | `/reservas` | Crear reserva |
-| PUT | `/reservas/{id}` | Actualizar reserva |
-| DELETE | `/reservas/{id}` | Eliminar reserva |
-
-Ejemplo de creacion:
+Crear pago:
 
 ```json
 {
   "usuarioId": 1,
+  "reservaId": 1,
+  "promocionId": 1,
+  "metodoPago": "DEBITO"
+}
+```
+
+Crear mantenimiento:
+
+```json
+{
+  "maquinaId": 1,
+  "usuarioOperadorId": 1,
+  "tipo": "PREVENTIVO",
+  "descripcion": "Limpieza preventiva de gabinete",
+  "tecnico": "Equipo Tecnico Norte",
+  "costo": 25000
+}
+```
+
+Crear torneo:
+
+```json
+{
+  "nombre": "Copa Arcade",
+  "descripcion": "Torneo semanal",
   "maquinaId": 1,
   "horarioId": 1,
-  "estado": "CONFIRMADA"
+  "cuposMaximos": 8
 }
 ```
 
-### `ms_fidelizacion`
+## Endpoints principales
 
-Responsabilidades:
+Los endpoints se muestran usando el gateway `http://localhost:9090`. Salvo las rutas publicas de `/auth`, enviar token JWT.
 
-- Registrar puntos por usuario.
-- Listar registros de fidelizacion.
-- Buscar puntos por usuario.
-- Calcular total de puntos.
-- Validar remotamente que el usuario exista.
+### Auth
 
-Comunicacion remota mediante `WebClient`:
+- `POST /auth/register`
+- `POST /auth/login`
+- `GET /auth/validate`
 
-| Validacion | Servicio consultado | Endpoint remoto |
-|---|---|---|
-| Usuario existe | `ms_usuarios_auth` | `GET /users/{id}/exists` |
+### Users
 
-Endpoints principales:
+- `GET /users`
+- `GET /users/{id}`
+- `GET /users/{id}/exists`
+- `GET /users/email/{email}`
+- `GET /users/frecuentes`
+- `GET /users/total`
+- `POST /users`
+- `PUT /users/{id}`
+- `DELETE /users/{id}`
+- `GET /users/v2`
+- `GET /users/v2/{id}`
+- `GET /users/v2/email/{email}`
+- `GET /users/v2/frecuentes`
 
-| Metodo | Endpoint | Descripcion |
-|---|---|---|
-| GET | `/fidelizacion` | Listar registros |
-| GET | `/fidelizacion/{id}` | Buscar registro por id |
-| GET | `/fidelizacion/usuario/{usuarioId}` | Buscar registros por usuario |
-| GET | `/fidelizacion/total/{usuarioId}` | Calcular puntos acumulados |
-| POST | `/fidelizacion` | Crear registro de puntos |
-| PUT | `/fidelizacion/{id}` | Actualizar registro |
-| DELETE | `/fidelizacion/{id}` | Eliminar registro |
+### Maquinas
 
-Ejemplo de creacion:
+- `GET /maquinas`
+- `GET /maquinas/{id}`
+- `GET /maquinas/{id}/existe`
+- `GET /maquinas/activa/{id}`
+- `GET /maquinas/estado/{estado}`
+- `GET /maquinas/tipo/{tipo}`
+- `GET /maquinas/total`
+- `POST /maquinas`
+- `PUT /maquinas/{id}`
+- `DELETE /maquinas/{id}`
+- `GET /maquinas/v2`
 
-```json
-{
-  "usuarioId": 1,
-  "puntos": 50,
-  "descripcion": "Reserva completada"
-}
-```
+### Horarios
 
-## Validaciones
+- `GET /horarios`
+- `GET /horarios/{id}`
+- `GET /horarios/{id}/existe`
+- `GET /horarios/fecha/{fecha}`
+- `GET /horarios/disponibles`
+- `GET /horarios/rango?inicio=YYYY-MM-DD&fin=YYYY-MM-DD`
+- `GET /horarios/total`
+- `POST /horarios`
+- `PUT /horarios/{id}`
+- `DELETE /horarios/{id}`
+- `GET /horarios/v2`
 
-El proyecto utiliza Bean Validation en DTOs para controlar datos de entrada antes de llegar a la capa de servicio.
+### Reservas
 
-Ejemplos implementados:
+- `GET /reservas`
+- `GET /reservas/{id}`
+- `GET /reservas/usuario/{usuarioId}`
+- `GET /reservas/estado/{estado}`
+- `GET /reservas/total`
+- `POST /reservas`
+- `PUT /reservas/{id}`
+- `DELETE /reservas/{id}`
+- `GET /reservas/v2`
 
-- `@NotBlank` para nombre, apellido, email y password en registro/login.
-- `@Email` para validar formato de correo.
-- `@NotNull` para campos obligatorios como ids, fechas, estado y costo.
-- `@Min` para evitar valores numericos invalidos, como costo menor a 1 o puntos menores a 1.
+### Fidelizacion
 
-Ejemplo de error esperado al enviar una maquina sin nombre:
+- `GET /fidelizacion`
+- `GET /fidelizacion/{id}`
+- `GET /fidelizacion/usuario/{usuarioId}`
+- `GET /fidelizacion/total/{usuarioId}`
+- `POST /fidelizacion`
+- `PUT /fidelizacion/{id}`
+- `DELETE /fidelizacion/{id}`
+- `GET /fidelizacion/v2`
 
-```json
-{
-  "timestamp": "2026-05-13T12:00:00",
-  "status": 400,
-  "error": "BAD_REQUEST",
-  "mensaje": "El nombre es obligatorio"
-}
-```
+### Notificaciones
 
-## Manejo de excepciones
+- `GET /notificaciones`
+- `GET /notificaciones/{id}`
+- `GET /notificaciones/usuario/{usuarioId}`
+- `GET /notificaciones/usuario/{usuarioId}/no-leidas`
+- `GET /notificaciones/usuario/{usuarioId}/total-no-leidas`
+- `GET /notificaciones/tipo/{tipo}`
+- `GET /notificaciones/no-leidas`
+- `POST /notificaciones`
+- `PUT /notificaciones/{id}/leer`
+- `PUT /notificaciones/usuario/{usuarioId}/leer-todas`
+- `DELETE /notificaciones/{id}`
+- `GET /notificaciones/v2`
 
-Cada microservicio usa excepciones propias y un `GlobalExceptionHandler` para entregar respuestas controladas.
+### Pagos
 
-Excepciones esperadas:
+- `GET /pagos`
+- `GET /pagos/{id}`
+- `GET /pagos/usuario/{usuarioId}`
+- `GET /pagos/reserva/{reservaId}`
+- `GET /pagos/estado/{estado}`
+- `GET /pagos/metodo/{metodoPago}`
+- `GET /pagos/total`
+- `POST /pagos`
+- `PUT /pagos/{id}`
+- `PUT /pagos/{id}/aprobar`
+- `PUT /pagos/{id}/rechazar`
+- `PUT /pagos/{id}/anular`
+- `DELETE /pagos/{id}`
+- `GET /pagos/v2`
 
-- `ResourceNotFoundException`: cuando un recurso no existe.
-- `BadRequestException`: cuando la solicitud rompe una regla de negocio.
-- `MethodArgumentNotValidException`: cuando falla una validacion de DTO.
+### Promociones
 
-Buenas practicas aplicadas:
+- `GET /promociones`
+- `GET /promociones/{id}`
+- `GET /promociones/codigo/{codigo}`
+- `GET /promociones/vigentes`
+- `GET /promociones/tipo/{tipo}`
+- `POST /promociones`
+- `POST /promociones/validar`
+- `PUT /promociones/{id}`
+- `PUT /promociones/{id}/activar`
+- `PUT /promociones/{id}/desactivar`
+- `DELETE /promociones/{id}`
+- `GET /promociones/v2`
 
-- No retornar errores crudos de Java al cliente.
-- Usar codigos HTTP correctos.
-- Responder en JSON.
-- Mantener mensajes claros para Postman y defensa tecnica.
+### Mantenimientos
 
-## Logs
+- `GET /mantenimientos`
+- `GET /mantenimientos/{id}`
+- `GET /mantenimientos/maquina/{maquinaId}`
+- `GET /mantenimientos/estado/{estado}`
+- `GET /mantenimientos/tipo/{tipo}`
+- `POST /mantenimientos`
+- `PUT /mantenimientos/{id}`
+- `PUT /mantenimientos/{id}/iniciar`
+- `PUT /mantenimientos/{id}/cerrar`
+- `PUT /mantenimientos/{id}/cancelar`
+- `DELETE /mantenimientos/{id}`
+- `GET /mantenimientos/v2`
 
-El proyecto integra logs con SLF4J en puntos relevantes del flujo. Los logs permiten explicar que ocurrio en una operacion y ayudan a detectar errores durante la defensa.
+### Torneos
 
-Ejemplos de eventos que se deben poder observar:
+- `GET /torneos`
+- `GET /torneos/{id}`
+- `GET /torneos/disponibles`
+- `GET /torneos/estado/{estado}`
+- `GET /torneos/{id}/inscritos`
+- `GET /torneos/usuario/{usuarioId}/inscripciones`
+- `POST /torneos`
+- `POST /torneos/{id}/inscribir/{usuarioId}`
+- `PUT /torneos/{id}`
+- `PUT /torneos/{id}/abrir`
+- `PUT /torneos/{id}/cerrar`
+- `PUT /torneos/{id}/cancelar-inscripcion/{usuarioId}`
+- `PUT /torneos/{id}/finalizar/{ganadorUsuarioId}`
+- `PUT /torneos/{id}/cancelar`
+- `DELETE /torneos/{id}`
+- `GET /torneos/v2`
 
-- Creacion de registros.
-- Actualizacion de registros.
-- Eliminacion de registros.
-- Busquedas por id.
-- Validaciones fallidas.
-- Errores controlados.
+## Reglas de negocio destacadas
 
-## Requisitos previos
-
-Antes de ejecutar el sistema, tener instalado o disponible:
-
-- Java 17.
-- Maven o los wrappers `mvnw` incluidos en cada modulo.
-- MySQL activo, por ejemplo mediante XAMPP.
-- Puertos libres: `8761`, `9090`, `9091`, `9092`, `9093`, `9094`, `9095`.
-- Postman u otra herramienta para probar endpoints REST.
-
-## Orden de ejecucion
-
-Iniciar primero MySQL. Luego ejecutar los proyectos en este orden:
-
-1. `eureka_server`
-2. `ms_usuarios_auth`
-3. `ms_maquinas`
-4. `ms-horarios`
-5. `ms_reservas`
-6. `ms_fidelizacion`
-7. `api-gateway`
-
-Comando desde cada carpeta:
-
-```bash
-./mvnw spring-boot:run
-```
-
-Validar Eureka en:
-
-```text
-http://localhost:8761
-```
-
-Validar API Gateway en:
-
-```text
-http://localhost:9090
-```
-
-## Secuencia recomendada de pruebas en Postman
-
-1. Registrar usuario con `POST /auth/register`.
-2. Iniciar sesion con `POST /auth/login`.
-3. Copiar el token retornado.
-4. Validar token con `GET /auth/validate`.
-5. Crear una maquina con `POST /maquinas`.
-6. Crear un bloque horario con `POST /horarios`.
-7. Crear una reserva con `POST /reservas`.
-8. Crear puntos de fidelizacion con `POST /fidelizacion`.
-9. Probar errores controlados:
-   - Crear reserva con `usuarioId` inexistente.
-   - Crear reserva con `maquinaId` inactiva o inexistente.
-   - Crear maquina con `costoPorBloque` igual a `0`.
-   - Enviar email con formato incorrecto.
-
-## Ejemplos de URLs usando API Gateway
-
-```text
-POST http://localhost:9090/auth/register
-POST http://localhost:9090/auth/login
-GET  http://localhost:9090/users/1
-POST http://localhost:9090/maquinas
-POST http://localhost:9090/horarios
-POST http://localhost:9090/reservas
-POST http://localhost:9090/fidelizacion
-```
-
-## Reglas de negocio
-
-- No se puede crear una reserva si el usuario no existe.
-- No se puede crear una reserva si la maquina no esta activa.
-- No se puede crear una reserva si el bloque horario no existe.
-- No se puede duplicar una reserva para la misma maquina en el mismo horario.
-- No se pueden registrar puntos de fidelizacion para usuarios inexistentes.
-- No se aceptan datos obligatorios nulos o vacios.
-- No se aceptan valores numericos negativos o iguales a cero cuando el dominio exige valores positivos.
-
-
-## 8) Inventario completo de endpoints (localhost)
-  
-### 8.1 Auth
-
-- `POST http://localhost:9090/auth/register`
-- `POST http://localhost:9090/auth/login`
-- `GET http://localhost:9090/auth/validate`
-
-### 8.2 Users
-
-- `GET http://localhost:9090/users`
-- `GET http://localhost:9090/users/{id}`
-- `GET http://localhost:9090/users/{id}/exists`
-- `GET http://localhost:9090/users/email/{email}`
-- `GET http://localhost:9090/users/rol/{rol}`
-- `GET http://localhost:9090/users/frecuentes`
-- `GET http://localhost:9090/users/total`
-- `POST http://localhost:9090/users`
-- `PUT http://localhost:9090/users/{id}`
-- `DELETE http://localhost:9090/users/{id}`
-
-### 8.3 Maquinas
-
-- `GET http://localhost:9090/maquinas`
-- `GET http://localhost:9090/maquinas/{id}`
-- `GET http://localhost:9090/maquinas/{id}/existe`
-- `GET http://localhost:9090/maquinas/activa/{id}`
-- `GET http://localhost:9090/maquinas/estado/{estado}`
-- `GET http://localhost:9090/maquinas/tipo/{tipo}`
-- `GET http://localhost:9090/maquinas/total`
-- `POST http://localhost:9090/maquinas`
-- `PUT http://localhost:9090/maquinas/{id}`
-- `DELETE http://localhost:9090/maquinas/{id}`
-
-### 8.4 Horarios
-
-- `GET http://localhost:9090/horarios`
-- `GET http://localhost:9090/horarios/{id}`
-- `GET http://localhost:9090/horarios/{id}/existe`
-- `GET http://localhost:9090/horarios/fecha/{fecha}`
-- `GET http://localhost:9090/horarios/disponibles`
-- `GET http://localhost:9090/horarios/rango?inicio=YYYY-MM-DD&fin=YYYY-MM-DD`
-- `GET http://localhost:9090/horarios/total`
-- `POST http://localhost:9090/horarios`
-- `PUT http://localhost:9090/horarios/{id}`
-- `DELETE http://localhost:9090/horarios/{id}`
-
-### 8.5 Reservas
-
-- `GET http://localhost:9090/reservas`
-- `GET http://localhost:9090/reservas/{id}`
-- `GET http://localhost:9090/reservas/usuario/{usuarioId}`
-- `GET http://localhost:9090/reservas/estado/{estado}`
-- `GET http://localhost:9090/reservas/total`
-- `POST http://localhost:9090/reservas`
-- `PUT http://localhost:9090/reservas/{id}`
-- `DELETE http://localhost:9090/reservas/{id}`
-
-### 8.6 Fidelizacion
-
-- `GET http://localhost:9090/fidelizacion`
-- `GET http://localhost:9090/fidelizacion/{id}`
-- `GET http://localhost:9090/fidelizacion/usuario/{usuarioId}`
-- `GET http://localhost:9090/fidelizacion/total/{usuarioId}`
-- `POST http://localhost:9090/fidelizacion`
-- `PUT http://localhost:9090/fidelizacion/{id}`
-- `DELETE http://localhost:9090/fidelizacion/{id}`
+- No se crea una reserva si el usuario no existe, la maquina no esta activa o el bloque horario no existe.
+- No se duplica una reserva para la misma maquina en el mismo horario.
+- No se registran puntos de fidelizacion para usuarios inexistentes.
+- Un pago se crea en estado pendiente y calcula montos desde la reserva y maquina asociada.
+- Aprobar un pago registra puntos de fidelizacion y envia una notificacion.
+- Las promociones se normalizan a mayusculas y se validan por vigencia, estado y monto.
+- Los mantenimientos controlan transiciones de estado: `PENDIENTE`, `EN_PROCESO`, `FINALIZADO`, `CANCELADO`.
+- Los torneos controlan cupos, inscripciones, cancelaciones, finalizacion y asignacion de ganador.
+- Los controllers reciben solicitudes y delegan reglas de negocio a servicios.
+- Las APIs usan DTOs para no exponer entidades JPA directamente.

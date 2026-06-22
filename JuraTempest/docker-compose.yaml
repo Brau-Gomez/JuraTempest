@@ -2,6 +2,7 @@ x-common-env: &common-env
   EUREKA_HOST: eureka-server
   SPRING_DATASOURCE_USERNAME: root
   SPRING_DATASOURCE_PASSWORD: admin123
+  JWT_SECRET: JuraTempestArcadeHub
 
 services:
 
@@ -21,19 +22,33 @@ services:
     ports:
       - "8761:8761"
 
-  ms-usuarios-auth:
-    build: ./ms_usuarios_auth
-    container_name: ms-usuarios-auth
+  ms-usuarios:
+    build: ./ms_usuarios
+    container_name: ms-usuarios
     ports:
       - "9091:9091"
     environment:
       <<: *common-env
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/usuarios_auth_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/usuarios_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
+    depends_on:
+      - mysql
+      - eureka-server
+
+  ms-auth:
+    build: ./ms_auth
+    container_name: ms-auth
+    ports:
+      - "9101:9101"
+    environment:
+      <<: *common-env
+      EUREKA_HOST: eureka-server
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/auth_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
       APP_JWT_SECRET: JuraTempestArcadeHub
       APP_JWT_EXPIRATION_MINUTES: 120
     depends_on:
       - mysql
       - eureka-server
+      - ms-usuarios
 
   ms-maquinas:
     build: ./ms_maquinas
@@ -46,6 +61,7 @@ services:
     depends_on:
       - mysql
       - eureka-server
+      - ms-auth
 
   ms-horarios:
     build: ./ms-horarios
@@ -58,6 +74,7 @@ services:
     depends_on:
       - mysql
       - eureka-server
+      - ms-auth
 
   ms-reservas:
     build: ./ms_reservas
@@ -70,9 +87,10 @@ services:
     depends_on:
       - mysql
       - eureka-server
-      - ms-usuarios-auth
+      - ms-usuarios
       - ms-maquinas
       - ms-horarios
+      - ms-auth
 
   ms-fidelizacion:
     build: ./ms_fidelizacion
@@ -85,7 +103,8 @@ services:
     depends_on:
       - mysql
       - eureka-server
-      - ms-usuarios-auth
+      - ms-usuarios
+      - ms-auth
 
   ms-notificaciones:
     build: ./ms_notificaciones
@@ -99,7 +118,76 @@ services:
     depends_on:
       - mysql
       - eureka-server
-      - ms-usuarios-auth
+      - ms-usuarios
+      - ms-auth
+
+  ms-pagos:
+    build: ./ms_pagos
+    container_name: ms-pagos
+    ports:
+      - "9097:9097"
+    environment:
+      <<: *common-env
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/pagos_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
+    depends_on:
+      - mysql
+      - eureka-server
+      - ms-reservas
+      - ms-maquinas
+      - ms-fidelizacion
+      - ms-notificaciones
+      - ms-promociones
+      - ms-auth
+
+  ms-promociones:
+    build: ./ms_promociones
+    container_name: ms-promociones
+    ports:
+      - "9098:9098"
+    environment:
+      <<: *common-env
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/promociones_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
+    depends_on:
+      - mysql
+      - eureka-server
+      - ms-auth
+
+  ms-mantenimiento:
+    build: ./ms_mantenimiento
+    container_name: ms-mantenimiento
+    ports:
+      - "9099:9099"
+    environment:
+      <<: *common-env
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/mantenimiento_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
+    depends_on:
+      - mysql
+      - eureka-server
+      - ms-maquinas
+      - ms-usuarios
+      - ms-notificaciones
+      - ms-auth
+
+  ms-eventos-torneos:
+    build: ./ms_eventos_torneos
+    container_name: ms-eventos-torneos
+    ports:
+      - "9100:9100"
+    environment:
+      <<: *common-env
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/eventos_torneos_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
+    depends_on:
+      - mysql
+      - eureka-server
+      - ms-auth
+      - ms-usuarios
+      - ms-maquinas
+      - ms-horarios
+      - ms-fidelizacion
+      - ms-notificaciones
+
 
   api-gateway:
     build: ./api-gateway
@@ -111,12 +199,17 @@ services:
       JWT_SECRET: JuraTempestArcadeHub
     depends_on:
       - eureka-server
-      - ms-usuarios-auth
+      - ms-auth
+      - ms-usuarios
       - ms-maquinas
       - ms-horarios
       - ms-reservas
       - ms-fidelizacion
       - ms-notificaciones
+      - ms-pagos
+      - ms-promociones
+      - ms-mantenimiento
+      - ms-eventos-torneos
 
 volumes:
   juratempest_mysql_data:

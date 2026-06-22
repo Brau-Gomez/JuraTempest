@@ -19,12 +19,12 @@ public class ReservaClient {
         this.webClient = webClient.build();
     }
 
-    // Consulta a ms_usuarios_auth para confirmar que el usuario exista.
+    // Consulta a ms_usuarios para confirmar que el usuario exista.
     // Si falla la comunicacion, devolvemos false para evitar crear reservas con datos no validados.
     public boolean usuarioExiste (Long id ){
         return Boolean.TRUE.equals(
             webClient.get()
-            .uri("http://ms-usuarios-auth/users/{id}/exists", id )
+            .uri("http://ms-usuarios/users/{id}/exists", id )
             .retrieve()
             .bodyToMono(Boolean.class)
             .timeout(Duration.ofSeconds(3))

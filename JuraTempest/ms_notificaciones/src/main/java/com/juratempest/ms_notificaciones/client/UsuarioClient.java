@@ -20,7 +20,7 @@ public class UsuarioClient {
     public boolean usuarioExiste(Long usuarioId) {
         return Boolean.TRUE.equals(
             webClientBuilder.get()
-            .uri("http://ms-usuarios-auth/users/{id}/exists", usuarioId)
+            .uri("http://ms-usuarios/users/{id}/exists", usuarioId)
             .retrieve()
             .bodyToMono(Boolean.class)
             .timeout(Duration.ofSeconds(3))

@@ -59,7 +59,7 @@ public class FidelizacionService {
     }
 
     // Crea un registro de puntos para un usuario existente.
-    // Primero validamos contra ms_usuarios_auth para no guardar puntos asociados a usuarios inexistentes.
+    // Primero validamos contra ms_usuarios para no guardar puntos asociados a usuarios inexistentes.
     public FidelizacionDTO crear(FidelizacionDTO dto) {
         if (!usuarioClient.usuarioExiste(dto.getUsuarioId())){
             log.warn("Intento de crear fidelizacion para usuario inexistente usuarioId={}", dto.getUsuarioId());

@@ -14,10 +14,15 @@ spring:
       server:
         webflux:
           routes:
-            - id: ms-usuarios-auth
-              uri: lb://ms-usuarios-auth
+            - id: ms-usuarios
+              uri: lb://ms-usuarios
               predicates:
-                - Path=/auth/**,/users/**
+                - Path=/users/**
+
+            - id: ms-auth
+              uri: lb://ms-auth
+              predicates:
+                - Path=/auth/**
 
             - id: ms-maquinas
               uri: lb://ms-maquinas
@@ -43,6 +48,26 @@ spring:
               uri: lb://ms-notificaciones
               predicates:
                 - Path=/notificaciones/**
+
+            - id: ms-pagos
+              uri: lb://ms-pagos
+              predicates:
+                - Path=/pagos/**
+
+            - id: ms-promociones
+              uri: lb://ms-promociones
+              predicates:
+                - Path=/promociones/**
+
+            - id: ms-mantenimiento
+              uri: lb://ms-mantenimiento
+              predicates:
+                - Path=/mantenimientos/**
+
+            - id: ms-eventos-torneos
+              uri: lb://ms-eventos-torneos
+              predicates:
+                - Path=/torneos/**
 
 eureka:
   client:

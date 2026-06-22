@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.juratempest.ms_pagos.model.Pago;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -29,19 +28,15 @@ public class PagoDTO {
 
     private Long promocionId;
 
-    @NotNull(message = "El valor Neto es obligatorio")
-    @Min(value = 1, message = "El valor Neto debe ser mayor a cero")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Integer valorNeto;
 
-    @NotNull(message = "El iva es obligatorio")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Integer iva;
 
-    @NotBlank(message = "El metodo de pago es obligatorio")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Integer montoDescuento;
 
-    @NotBlank(message = "El metodo de pago es obligatorio")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Integer montoFinal;
 
@@ -49,9 +44,12 @@ public class PagoDTO {
     private String metodoPago;
 
     private String estado;
+
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDateTime fechaCreacion;
-    
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private LocalDateTime fechaPago;
 
     public Pago toModel() {
         return Pago.builder()
@@ -66,6 +64,7 @@ public class PagoDTO {
                 .metodoPago(metodoPago)
                 .estado(estado)
                 .fechaCreacion(fechaCreacion)
+                .fechaPago(fechaPago)
                 .build();
     }
 
@@ -83,6 +82,8 @@ public class PagoDTO {
                 .montoFinal(pago.getMontoFinal())
                 .metodoPago(pago.getMetodoPago())
                 .estado(pago.getEstado())
+                .fechaCreacion(pago.getFechaCreacion())
+                .fechaPago(pago.getFechaPago())
                 .build();
     }
 }

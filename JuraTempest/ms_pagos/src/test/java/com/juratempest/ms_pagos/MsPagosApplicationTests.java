@@ -1,12 +1,12 @@
 package com.juratempest.ms_pagos;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
-@SpringBootTest
-class MsNotificacionesApplicationTests {
+import org.junit.jupiter.api.Test;
+class MsPagosApplicationTests {
 
     @Test
     void contextLoads() {
+        assertDoesNotThrow(MsPagosApplication::new);
     }
 }

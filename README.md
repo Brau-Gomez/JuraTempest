@@ -1,12 +1,12 @@
 # JuraTempest
 
-## Descripcion
+## Contexto o dominio del sistema
 
-JuraTempest es una aplicacion de microservicios para administrar un centro arcade. Permite gestionar usuarios, autenticacion JWT, maquinas, bloques horarios, reservas, fidelizacion, notificaciones, pagos, promociones, mantenimientos y torneos.
+JuraTempest es una aplicacion de microservicios para administrar un centro arcade. El dominio del sistema cubre la operacion diaria de un local con maquinas arcade, reservas por bloques horarios, pagos, promociones, fidelizacion de clientes, notificaciones, mantenimientos y torneos.
 
 El trabajo corresponde al proyecto semestral de Desarrollo FullStack 1. La solucion aplica Spring Boot, JPA/Hibernate, migraciones con Liquibase y Flyway, validacion con DTOs, manejo centralizado de errores, comunicacion entre microservicios, API Gateway y Eureka Server.
 
-## Equipo
+## Integrantes
 
 | Integrante | Rol dentro del proyecto | Aporte tecnico |
 |---|---|---|
@@ -14,7 +14,8 @@ El trabajo corresponde al proyecto semestral de Desarrollo FullStack 1. La soluc
 | Lukas Meza | Developer | Maquinas, reservas, fidelizacion, mantenimiento, eventos_torneos|
 
 Docente: Carlos Alberto Abarzua Castro
-Asignatura y seccion: Desarrollo FullStack 1 DSY1103 - 010D
+
+Asignatura: Desarrollo FullStack 1 DSY1103 - 010D
 
 ## Estructura del repositorio
 
@@ -43,7 +44,7 @@ El codigo fuente vive dentro de `JuraTempest/`. La raiz mantiene este README y a
 
 Nota: el servicio antiguo `ms_usuarios_auth` fue separado en dos servicios actuales: `ms_auth` y `ms_usuarios`.
 
-## Arquitectura actual
+## Microservicios implementados y responsabilidades
 
 | Componente | Puerto | Responsabilidad |
 |---|---:|---|
@@ -61,7 +62,7 @@ Nota: el servicio antiguo `ms_usuarios_auth` fue separado en dos servicios actua
 | `ms_eventos_torneos` | 9100 | Torneos, inscripciones, ganadores y puntos |
 | `ms_auth` | 9101 | Login, registro, validacion y emision de JWT |
 
-## Rutas por API Gateway
+## Rutas principales del API Gateway
 
 Todas las pruebas externas se realizan desde:
 
@@ -85,7 +86,23 @@ http://localhost:9090
 
 Rutas publicas del gateway: `OPTIONS`, `/auth/login`, `/auth/register`, `/auth/validate`, `/swagger-ui/**` y `/v3/api-docs/**`. El resto requiere `Authorization: Bearer <token>`.
 
-Swagger UI de cada microservicio esta configurado directamente en `/doc/swagger-ui.html`. El gateway no enruta `/doc/**`.
+## Enlaces Swagger
+
+Swagger UI de cada microservicio esta configurado directamente en `/doc/swagger-ui.html`. El gateway no enruta `/doc/**`, por lo que la documentacion se abre en el puerto de cada servicio.
+
+| Servicio | Swagger UI local |
+|---|---|
+| `ms_auth` | `http://localhost:9101/doc/swagger-ui.html` |
+| `ms_usuarios` | `http://localhost:9091/doc/swagger-ui.html` |
+| `ms_maquinas` | `http://localhost:9092/doc/swagger-ui.html` |
+| `ms-horarios` | `http://localhost:9093/doc/swagger-ui.html` |
+| `ms_reservas` | `http://localhost:9094/doc/swagger-ui.html` |
+| `ms_fidelizacion` | `http://localhost:9095/doc/swagger-ui.html` |
+| `ms_notificaciones` | `http://localhost:9096/doc/swagger-ui.html` |
+| `ms_pagos` | `http://localhost:9097/doc/swagger-ui.html` |
+| `ms_promociones` | `http://localhost:9098/doc/swagger-ui.html` |
+| `ms_mantenimiento` | `http://localhost:9099/doc/swagger-ui.html` |
+| `ms_eventos_torneos` | `http://localhost:9100/doc/swagger-ui.html` |
 
 ## Tecnologias
 
@@ -139,6 +156,25 @@ Los servicios usan `@LoadBalanced WebClient.Builder` y nombres de Eureka, por ej
 | `ms_mantenimiento` | Valida maquinas/usuarios y crea notificaciones |
 | `ms_eventos_torneos` | Valida usuarios, maquinas, horarios, fidelizacion y notificaciones |
 
+## Variables de entorno requeridas
+
+Los servicios incluyen valores por defecto para desarrollo local, pero en despliegue remoto deben revisarse y reemplazarse por valores seguros. `APP_JWT_SECRET` y `JWT_SECRET` deben tener exactamente el mismo valor para que los tokens emitidos por `ms_auth` sean aceptados por el gateway y los demas microservicios.
+
+| Variable | Usada por | Proposito | Valor local / Docker actual |
+|---|---|---|---|
+| `EUREKA_HOST` | Gateway y microservicios | Host donde esta publicado Eureka | `localhost` local, `eureka-server` en Docker |
+| `SPRING_DATASOURCE_URL` | Microservicios con base de datos | URL JDBC de MySQL por servicio | `jdbc:mysql://mysql:3306/<db>...` en Docker |
+| `SPRING_DATASOURCE_USERNAME` | Microservicios con base de datos | Usuario de MySQL | `root` |
+| `SPRING_DATASOURCE_PASSWORD` | Microservicios con base de datos | Password de MySQL | vacia local, `admin123` en Docker |
+| `MYSQL_ROOT_PASSWORD` | Contenedor `mysql` | Password del usuario root de MySQL | `admin123` |
+| `JWT_SECRET` | Gateway y microservicios protegidos | Secreto para validar JWT | `JuraTempestArcadeHub` |
+| `APP_JWT_SECRET` | `ms_auth` | Secreto para firmar JWT | `JuraTempestArcadeHub` |
+| `APP_JWT_EXPIRATION_MINUTES` | `ms_auth` | Duracion del token JWT | `120` |
+| `SPRING_PROFILES_ACTIVE` | Servicios con perfil dev | Activa configuracion de desarrollo | `dev` en notificaciones, pagos y promociones dentro de Docker |
+| `SPRING_JPA_HIBERNATE_DDL_AUTO` | Servicios con Hibernate ddl-auto | Controla creacion/actualizacion automatica de esquema | `create-drop` o `update` segun servicio |
+
+Bases de datos esperadas por servicio: `usuarios_db`, `auth_db`, `maquinas_db`, `horarios_db`, `reservas_db`, `fidelizacion_db`, `notificaciones_db`, `pagos_db`, `promociones_db`, `mantenimiento_db` y `eventos_torneos_db`.
+
 ## Requisitos previos
 
 - Java 17.
@@ -147,7 +183,51 @@ Los servicios usan `@LoadBalanced WebClient.Builder` y nombres de Eureka, por ej
 - Puertos libres: `3306`, `8761`, `9090` a `9101`.
 - Postman, Insomnia o similar para probar endpoints REST.
 
-## Comandos utiles
+## Instrucciones de ejecucion local
+
+### Opcion recomendada con Docker Compose
+
+Desde la carpeta `JuraTempest/`, generar los `.jar` que usan los Dockerfile y levantar la pila completa:
+
+LINUX - UNIX 
+
+```bash
+./scripts/build-targets.sh
+docker compose up --build
+```
+
+WINDOWS
+
+```powershell
+.\scripts\build-targets.bat
+docker-compose up --build
+```
+
+Validar Eureka en:
+
+```text
+http://localhost:8761
+```
+
+Validar gateway en:
+
+```text
+http://localhost:9090
+```
+
+Detener la pila:
+
+```bash
+docker compose down
+```
+
+Limpiar contenedores e imagenes del proyecto sin borrar volumenes de base de datos:
+
+```bash
+./scripts/clean-images.sh
+```
+
+### Ejecucion manual por servicio
 
 No existe un `pom.xml` agregador en la raiz. Los comandos Maven se ejecutan desde la carpeta de cada servicio.
 
@@ -169,31 +249,11 @@ Ejecutar un test puntual:
 ./mvnw -Dtest=PagoServiceTest test
 ```
 
-Ejecutar un servicio localmente:
+Ejecutar un servicio localmente desde su carpeta:
 
 ```bash
 ./mvnw spring-boot:run
 ```
-
-Construir todos los jars requeridos por Docker, desde `JuraTempest/`:
-
-```bash
-./scripts/build-targets.sh
-```
-
-Levantar la pila completa, desde `JuraTempest/`, despues de generar los jars:
-
-```bash
-docker compose up --build
-```
-
-Limpiar contenedores e imagenes del proyecto sin borrar volumenes de base de datos:
-
-```bash
-./scripts/clean-images.sh
-```
-
-## Orden de ejecucion local
 
 Si no se usa Docker Compose, iniciar en este orden:
 
@@ -204,17 +264,22 @@ Si no se usa Docker Compose, iniciar en este orden:
 5. Servicios de dominio: `ms_maquinas`, `ms-horarios`, `ms_reservas`, `ms_fidelizacion`, `ms_notificaciones`, `ms_promociones`, `ms_pagos`, `ms_mantenimiento`, `ms_eventos_torneos`.
 6. `api-gateway`.
 
-Validar Eureka en:
+## Instrucciones de despliegue remoto
 
-```text
-http://localhost:8761
-```
+El despliegue remoto recomendado es con Docker Compose en una maquina Linux o VPS. Antes de publicarlo, cambiar secretos y passwords por valores seguros; no usar `admin123` ni `JuraTempestArcadeHub` en produccion.
 
-Validar gateway en:
+1. Preparar el servidor con Java 17, Docker, Docker Compose y Git.
+2. Clonar el repositorio en el servidor.
+3. Entrar a la carpeta de despliegue: `cd JuraTempest/JuraTempest`.
+4. Ajustar variables sensibles en `docker-compose.yaml` o parametrizar el archivo con variables del entorno del servidor.
+5. Restringir por firewall los puertos internos. Para consumo externo normalmente basta publicar `9090` para el gateway; `8761` puede abrirse solo para administracion y `3306` no deberia exponerse publicamente.
+6. Generar los `.jar` requeridos por los Dockerfile: `./scripts/build-targets.sh`.
+7. Levantar la pila en segundo plano: `docker compose up -d --build`.
+8. Revisar estado de contenedores: `docker compose ps`.
+9. Revisar logs si un servicio no registra en Eureka: `docker compose logs -f <servicio>`.
+10. Probar el gateway remoto con `http://<host-remoto>:9090/auth/login` o con el dominio configurado.
 
-```text
-http://localhost:9090
-```
+Si se usa un proxy inverso como Nginx, apuntar el dominio al puerto `9090` del `api-gateway` y mantener los demas puertos cerrados hacia Internet.
 
 ## Flujo principal de pruebas
 

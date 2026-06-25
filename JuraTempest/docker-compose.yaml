@@ -15,6 +15,12 @@ services:
       MYSQL_ROOT_PASSWORD: admin123
     volumes:
       - juratempest_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
 
   eureka-server:
     build: ./eureka_server
@@ -31,8 +37,10 @@ services:
       <<: *common-env
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/usuarios_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
     depends_on:
-      - mysql
-      - eureka-server
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
 
   ms-auth:
     build: ./ms_auth
@@ -46,9 +54,12 @@ services:
       APP_JWT_SECRET: JuraTempestArcadeHub
       APP_JWT_EXPIRATION_MINUTES: 120
     depends_on:
-      - mysql
-      - eureka-server
-      - ms-usuarios
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      ms-usuarios:
+        condition: service_started
 
   ms-maquinas:
     build: ./ms_maquinas
@@ -59,9 +70,12 @@ services:
       <<: *common-env
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/maquinas_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
     depends_on:
-      - mysql
-      - eureka-server
-      - ms-auth
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      ms-auth:
+        condition: service_started
 
   ms-horarios:
     build: ./ms-horarios
@@ -72,9 +86,12 @@ services:
       <<: *common-env
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/horarios_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
     depends_on:
-      - mysql
-      - eureka-server
-      - ms-auth
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      ms-auth:
+        condition: service_started
 
   ms-reservas:
     build: ./ms_reservas
@@ -85,12 +102,18 @@ services:
       <<: *common-env
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/reservas_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
     depends_on:
-      - mysql
-      - eureka-server
-      - ms-usuarios
-      - ms-maquinas
-      - ms-horarios
-      - ms-auth
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      ms-usuarios:
+        condition: service_started
+      ms-maquinas:
+        condition: service_started
+      ms-horarios:
+        condition: service_started
+      ms-auth:
+        condition: service_started
 
   ms-fidelizacion:
     build: ./ms_fidelizacion
@@ -101,10 +124,14 @@ services:
       <<: *common-env
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/fidelizacion_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
     depends_on:
-      - mysql
-      - eureka-server
-      - ms-usuarios
-      - ms-auth
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      ms-usuarios:
+        condition: service_started
+      ms-auth:
+        condition: service_started
 
   ms-notificaciones:
     build: ./ms_notificaciones
@@ -116,10 +143,14 @@ services:
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/notificaciones_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
     depends_on:
-      - mysql
-      - eureka-server
-      - ms-usuarios
-      - ms-auth
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      ms-usuarios:
+        condition: service_started
+      ms-auth:
+        condition: service_started
 
   ms-pagos:
     build: ./ms_pagos
@@ -131,14 +162,22 @@ services:
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/pagos_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
     depends_on:
-      - mysql
-      - eureka-server
-      - ms-reservas
-      - ms-maquinas
-      - ms-fidelizacion
-      - ms-notificaciones
-      - ms-promociones
-      - ms-auth
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      ms-reservas:
+        condition: service_started
+      ms-maquinas:
+        condition: service_started
+      ms-fidelizacion:
+        condition: service_started
+      ms-notificaciones:
+        condition: service_started
+      ms-promociones:
+        condition: service_started
+      ms-auth:
+        condition: service_started
 
   ms-promociones:
     build: ./ms_promociones
@@ -150,9 +189,12 @@ services:
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/promociones_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
     depends_on:
-      - mysql
-      - eureka-server
-      - ms-auth
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      ms-auth:
+        condition: service_started
 
   ms-mantenimiento:
     build: ./ms_mantenimiento
@@ -163,12 +205,18 @@ services:
       <<: *common-env
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/mantenimiento_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
     depends_on:
-      - mysql
-      - eureka-server
-      - ms-maquinas
-      - ms-usuarios
-      - ms-notificaciones
-      - ms-auth
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      ms-maquinas:
+        condition: service_started
+      ms-usuarios:
+        condition: service_started
+      ms-notificaciones:
+        condition: service_started
+      ms-auth:
+        condition: service_started
 
   ms-eventos-torneos:
     build: ./ms_eventos_torneos
@@ -179,14 +227,22 @@ services:
       <<: *common-env
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/eventos_torneos_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
     depends_on:
-      - mysql
-      - eureka-server
-      - ms-auth
-      - ms-usuarios
-      - ms-maquinas
-      - ms-horarios
-      - ms-fidelizacion
-      - ms-notificaciones
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      ms-auth:
+        condition: service_started
+      ms-usuarios:
+        condition: service_started
+      ms-maquinas:
+        condition: service_started
+      ms-horarios:
+        condition: service_started
+      ms-fidelizacion:
+        condition: service_started
+      ms-notificaciones:
+        condition: service_started
 
 
   api-gateway:

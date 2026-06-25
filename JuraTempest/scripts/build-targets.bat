@@ -3,7 +3,7 @@ setlocal enabledelayedexpansion
 
 set "SCRIPT_DIR=%~dp0"
 set "PROJECT_DIR=%SCRIPT_DIR%.."
-set "SERVICES=eureka_server api-gateway ms_usuarios ms_maquinas ms-horarios ms_reservas ms_fidelizacion ms_notificaciones ms_pagos ms_promociones"
+set "SERVICES=eureka_server api-gateway ms_usuarios ms_maquinas ms-horarios ms_reservas ms_fidelizacion ms_notificaciones ms_pagos ms_promociones ms_auth ms_mantenimiento ms_eventos_torneos"
 
 for %%S in (%SERVICES%) do (
     set "SERVICE_DIR=%PROJECT_DIR%\%%S"

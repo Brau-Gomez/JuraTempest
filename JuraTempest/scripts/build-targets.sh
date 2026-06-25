@@ -43,3 +43,5 @@ for SERVICE in "${SERVICES[@]}"; do
 done
 
 echo "Targets actualizados."
+
+cd .. | docker compose up -d

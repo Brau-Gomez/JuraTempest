@@ -23,7 +23,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/internal/users/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/users/*/exists", "/users/email/**").permitAll()
-                .requestMatchers("/users/**").hasAnyRole("ADMIN", "OPERADOR")
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/doc/**").permitAll()
+                .requestMatchers("/users/**").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

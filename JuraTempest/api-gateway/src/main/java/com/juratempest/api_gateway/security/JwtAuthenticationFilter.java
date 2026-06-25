@@ -54,9 +54,8 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         return HttpMethod.OPTIONS.equals(request.getMethod())
                 || path.equals("/auth/login")
                 || path.equals("/auth/register")
-                || path.equals("/auth/validate")
-                || path.startsWith("/swagger-ui")
-                || path.startsWith("/v3/api-docs");
+                || path.equals("/auth/validate");
+                
     }
 
     private Mono<Void> unauthorized(ServerWebExchange exchange) {
